@@ -4,10 +4,10 @@
 set -e
 
 lock_file=litrack.lock
-first="2015-01"
-last="2015-01"
+first="2025-01"
+last="2025-09"
 # last=$(date +%Y-%m)  # get today's month
-sample_size=10
+sample_size=100000
 elo_buckets="2200 1800_2200 1400_1800"
 
 if [[ -f $lock_file ]]; then

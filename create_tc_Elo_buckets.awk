@@ -75,14 +75,10 @@ function process_game(elo_bracket, bucket_id, n, j, combined_key) {
 END {
   process_game();
 
-  print "--- Writing sampled games to disk ---" > "/dev/stderr";
-
   for (bucket_id in counters) {
     outfile = pgn_prefix "_" bucket_id ".pgn";
 
     final_sample_count = (counters[bucket_id] < k) ? counters[bucket_id] : k;
-
-    print "  -> Writing " final_sample_count " games to " outfile > "/dev/stderr";
 
     for (i = 1; i <= final_sample_count; i++) {
       combined_key = bucket_id SUBSEP i;
