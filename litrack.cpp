@@ -1,26 +1,41 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <string>
+#include <vector>
 
 #include "../cdbdirect/cdbdirect.h"
 #include "external/chess.hpp"
 
 using namespace chess;
 
-std::size_t total_games = 0, total_pos = 0;
+std::vector<std::string> fens;
+
+bool is_pos_in_cdb(std::uintptr_t handle, const Board &board) {
+  auto result = cdbdirect_get(handle, board.getFen(false));
+  int ply = result[result.size() - 1].second;
+  return ply > -2;
+}
 
 class MyVisitor : public pgn::Visitor {
 public:
+  MyVisitor(std::uintptr_t handle) : handle(handle) {}
   virtual ~MyVisitor() {}
 
   void startPgn() {}
 
   void header(std::string_view key, std::string_view value) {
-    if (key == "FEN")
+    if (key == "FEN") {
       board.setFen(value);
+      if (!is_pos_in_cdb(handle, board)) {
+        this->skipPgn(true);
+        return;
+      }
+      fen_plus_moves = board.getFen();
+    }
   }
 
-  void startMoves() { total_games++; }
+  void startMoves() {}
 
   void move(std::string_view move, std::string_view) {
     Move m = uci::parseSan(board, move, moves);
@@ -29,22 +44,33 @@ public:
       return;
     }
     board.makeMove<true>(m);
-    total_pos++;
+    if (still_in_cdb) {
+      if (is_pos_in_cdb(handle, board)) {
+        fen_plus_moves = board.getFen();
+      } else {
+        still_in_cdb = false;
+        fen_plus_moves += " moves " + uci::moveToUci(m);
+      }
+    } else
+      fen_plus_moves += " " + uci::moveToUci(m);
   }
 
-  void endPgn() { board.setFen(constants::STARTPOS); }
+  void endPgn() {
+    fens.push_back(fen_plus_moves);
+    board.setFen(constants::STARTPOS);
+    still_in_cdb = true;
+    fen_plus_moves = constants::STARTPOS;
+  }
 
 private:
+  std::uintptr_t handle;
   Board board;
   Movelist moves;
+  bool still_in_cdb = true;
+  std::string fen_plus_moves = constants::STARTPOS;
 };
 
-int main(int argc, char const *argv[]) {
-  if (argc < 2) {
-    std::cerr << "Usage: " << argv[0] << " <pgn_file>\n";
-    return 1;
-  }
-
+int main(int, char const *argv[]) {
   const auto file = argv[1];
   auto file_stream = std::ifstream(file);
 
@@ -52,37 +78,24 @@ int main(int argc, char const *argv[]) {
   std::uint64_t size = cdbdirect_size(handle);
   std::cout << "Opened DB with " << size << " stored positions." << std::endl;
 
-  auto vis = std::make_unique<MyVisitor>();
-
-  const auto t0 = std::chrono::high_resolution_clock::now();
+  auto vis = std::make_unique<MyVisitor>(handle);
 
   pgn::StreamParser parser(file_stream);
   auto error = parser.readGames(*vis);
+
+  handle = cdbdirect_finalize(handle);
 
   if (error) {
     std::cerr << "Error: " << error.message() << "\n";
     return 1;
   }
 
-  const auto t1 = std::chrono::high_resolution_clock::now();
+  auto outfile = std::ofstream("litrack_dump.epd");
+  for (auto &fen : fens)
+    outfile << fen << std::endl;
 
-  const auto file_size_mb = std::filesystem::file_size(file) / 1000.0 / 1000.0;
-
-  std::cout << "MB/s: "
-            << (file_size_mb /
-                (std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0)
-                     .count() /
-                 1000.0))
-            << "\n";
-
-  std::cout << "Parsed " << total_pos << " positions from " << total_games
-            << " games in "
-            << (std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0)
-                    .count() /
-                1000.0)
-            << "s\n";
-
-  handle = cdbdirect_finalize(handle);
+  std::cout << "Stored exit ply info for " << fens.size()
+            << " games in litrack_dump.epd." << std::endl;
 
   return 0;
 }
