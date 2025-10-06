@@ -72,8 +72,7 @@ class litrack2cdb:
             if pc < self.pieceMin or not bool(board.legal_moves):
                 break
             if still_in_cdb:
-                # r = await self.cdb.readscore(board.epd())
-                r = {"status": "unknown"}
+                r = await self.cdb.readscore(board.epd())
                 if r.get("status") != "unknown":
                     fen_plus_moves = board.fen()
                 else:
