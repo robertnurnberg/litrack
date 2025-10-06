@@ -4,10 +4,11 @@
 set -e
 
 lock_file=litrack.lock
-first="2013-01"
-last="2013-01"
+first="2015-01"
+last="2015-01"
 # last=$(date +%Y-%m)  # get today's month
-sample_size=100000
+sample_size=10
+elo_buckets="2200 1800_2200 1400_1800"
 
 if [[ -f $lock_file ]]; then
   echo "Lock file exists, exiting."
@@ -61,6 +62,20 @@ for month in $months; do
   zstdcat "$pgnzst" | awk -v tcs="$tcs" -v pgn_prefix="$pgn_prefix" -v sample_size="$sample_size" -f create_tc_Elo_buckets.awk
 
   echo "TC+Elo bucket filtering finished at: " $(date)
+
+  for tc in $tcs; do
+    for elo in $elo_buckets; do
+      echo $elo
+      bucket="${pgn_prefix}_${tc}_Elo$elo"
+      pgn="$bucket.pgn"
+      dump_output="${bucket}_dump.epd"
+      cdb_output="${bucket}_cdb.epd"
+      if [[ -f $pgn ]]; then
+        ./litrack2dump $pgn $dump_output
+        python litrack2cdb.py $dump_output -o $cdb_output
+      fi
+    done
+  done
 
   for db in $dbs; do
     for tc in $tcs; do
