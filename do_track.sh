@@ -3,29 +3,34 @@
 # exit on errors
 set -e
 
-echo "started at: " $(date)
-
+lock_file=litrack.lock
 first="2013-01"
 last="2013-01"
 # last=$(date +%Y-%m)  # get today's month
-SAMPLE_SIZE=100000
+sample_size=100000
+
+if [[ -f $lock_file ]]; then
+  echo "Lock file exists, exiting."
+  exit 1
+fi
+
+touch $lock_file
+
+echo "started at: " $(date)
 
 dbs="dump cdb"
 tcs="blitz rapid classical"
 lichess_prefix="lichess_db_standard_rated_"
-cdbdirect=../cdbdirect/cdbdirect_threaded.litrack
 
 for db in $dbs; do
   for tc in $tcs; do
     csv=litrack_${tc}_$db.csv
-    new=new_${tc}_$db.csv
     if [[ ! -f $csv ]]; then
-      echo "Month,Exit ply distribution" >$csv
-    fi
-    # if necessary, merge results from a previous (interrupted) run
-    if [[ -f $new ]]; then
-      cat $new >>$csv && rm $new
-      # python plotdata.py $csv
+      if [ "$db" == "dump" ]; then
+        echo "Month,Bench,Elo 2200+,Elo 1800-2199,Elo 1400-1799" >$csv
+      else
+        echo "Month,Access time,Elo 2200+,Elo 1800-2199,Elo 1400-1799" >$csv
+      fi
     fi
   done
 done
@@ -42,31 +47,36 @@ months=$(
 
 for month in $months; do
   echo $month
+  if [ $(grep -l "$month" litrack_*.csv | wc -l) == 6 ]; then
+    continue
+  fi
   pgn_prefix=${lichess_prefix}${month}
   pgnzst=${pgn_prefix}.pgn.zst
   if [[ ! -f $pgnzst ]]; then
     echo "Download $pgnzst ..."
     wget -q https://database.lichess.org/standard/${pgnzst}
+    echo "Download finished at: " $(date)
   fi
 
-  zstdcat "$pgnzst" | awk -v tcs="$tcs" -v pgn_prefix="$pgn_prefix" -v sample_size="$SAMPLE_SIZE" -f create_tc_Elo_buckets.awk
+  zstdcat "$pgnzst" | awk -v tcs="$tcs" -v pgn_prefix="$pgn_prefix" -v sample_size="$sample_size" -f create_tc_Elo_buckets.awk
 
-  ## echo $month >>$new
-done
+  echo "TC+Elo bucket filtering finished at: " $(date)
 
-for db in $dbs; do
-  for tc in $tcs; do
-    csv=litrack_${tc}_$db.csv
-    new=new_${tc}_$db.csv
-    if [[ -f $new ]]; then
-      cat $new >>$csv && rm $new
-      # python plotdata.py $csv
-    fi
-  #  git add $csv # TODO add png files
+  for db in $dbs; do
+    for tc in $tcs; do
+      csv=litrack_${tc}_$db.csv
+      if ! grep -q "$month" "$csv"; then
+        echo $month >>$csv
+        # python plotdata.py $csv
+        #  git add $csv # TODO add png files
+      fi
+    done
   done
 done
 
 #  git diff --staged --quiet || git commit -m "Update results"
 #  git push origin master >&push.log
+
+rm -f $lock_file
 
 echo "ended at: " $(date)

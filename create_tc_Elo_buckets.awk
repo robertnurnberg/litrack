@@ -76,18 +76,16 @@ END {
   print "--- Writing sampled games to disk ---" > "/dev/stderr";
   
   for (bucket_id in counters) {
-    outfile = pgn_prefix "_" bucket_id ".pgn.zst";
+    outfile = pgn_prefix "_" bucket_id ".pgn";
     
     final_sample_count = (counters[bucket_id] < k) ? counters[bucket_id] : k;
 
     print "  -> Writing " final_sample_count " games to " outfile > "/dev/stderr";
     
-    cmd = "zstd > " outfile;
-    
     # Now loop from 1 to the final sample count, reconstructing the key for each game.
     for (i = 1; i <= final_sample_count; i++) {
       combined_key = bucket_id SUBSEP i;
-      printf "%s", reservoir[combined_key] | cmd;
+      printf "%s", reservoir[combined_key] > outfile;
     }
     
     close(cmd);
