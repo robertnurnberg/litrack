@@ -19,6 +19,7 @@ $(EXE_FILE): $(SRC_FILE)
 
 format:
 	clang-format -i $(SRC_FILE)
+	shfmt -w -i 2 do_track.sh
 
 clean:
 	rm -f $(EXE_FILE)
