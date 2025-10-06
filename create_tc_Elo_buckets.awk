@@ -36,9 +36,11 @@ function process_game(elo_bracket, bucket_id, n, j, combined_key) {
 
   # Reservoir Sampling Algorithm:
   if (n <= k) {
+    # Keep the first k games
     combined_key = bucket_id SUBSEP n;
     reservoir[combined_key] = game_buffer;
   } else {
+    # Create random index 1 <= j <= n, if j <= k replace game stored at index j
     j = 1 + int(rand() * n);
     if (j <= k) {
       combined_key = bucket_id SUBSEP j;
@@ -55,7 +57,7 @@ function process_game(elo_bracket, bucket_id, n, j, combined_key) {
   w_elo = 0;
   b_elo = 0;
   game_tc = "";
-  
+
   lc_line = tolower($0);
   for (i in target_tcs) {
     tc = target_tcs[i];
@@ -74,20 +76,19 @@ END {
   process_game();
 
   print "--- Writing sampled games to disk ---" > "/dev/stderr";
-  
+
   for (bucket_id in counters) {
     outfile = pgn_prefix "_" bucket_id ".pgn";
-    
+
     final_sample_count = (counters[bucket_id] < k) ? counters[bucket_id] : k;
 
     print "  -> Writing " final_sample_count " games to " outfile > "/dev/stderr";
-    
-    # Now loop from 1 to the final sample count, reconstructing the key for each game.
+
     for (i = 1; i <= final_sample_count; i++) {
       combined_key = bucket_id SUBSEP i;
       printf "%s", reservoir[combined_key] > outfile;
     }
-    
+
     close(cmd);
   }
 }
