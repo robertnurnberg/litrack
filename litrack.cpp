@@ -11,6 +11,8 @@ using namespace chess;
 
 std::vector<std::string> fens;
 
+const int tb_limit = 7;
+
 bool is_pos_in_cdb(std::uintptr_t handle, const Board &board) {
   auto result = cdbdirect_get(handle, board.getFen(false));
   int ply = result[result.size() - 1].second;
@@ -43,7 +45,16 @@ public:
       this->skipPgn(true);
       return;
     }
+
     board.makeMove<true>(m);
+
+    Movelist movelist;
+    movegen::legalmoves(movelist, board);
+    if (movelist.empty() || board.occ().count() <= tb_limit) {
+      this->skipPgn(true);
+      return;
+    }
+
     if (still_in_cdb) {
       if (is_pos_in_cdb(handle, board)) {
         fen_plus_moves = board.getFen();
