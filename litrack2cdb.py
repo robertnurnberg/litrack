@@ -5,15 +5,7 @@ import cdblib, chess
 
 
 class litrack2cdb:
-    def __init__(
-        self,
-        filename,
-        output,
-        pieceMin,
-        concurrency,
-        user,
-        suppressErrors,
-    ):
+    def __init__(self, filename, output, pieceMin, concurrency, user, suppressErrors):
         self.input = filename
         self.lines = []
         self.scored = 0
@@ -25,13 +17,8 @@ class litrack2cdb:
                     if not line.startswith("#"):  # ignore comments
                         self.scored += 1
         self.output = open(output, "w")
-        self.display = sys.stdout
         self.pieceMin = pieceMin
-        print(
-            f"Read {self.scored} FENs from file {self.input}.",
-            file=self.display,
-            flush=True,
-        )
+        print(f"Read {self.scored} FENs from file {self.input}.", flush=True)
         self.concurrency = concurrency
         self.cdb = cdblib.cdbAPI(concurrency, user, not suppressErrors)
 
@@ -39,7 +26,6 @@ class litrack2cdb:
         print(
             f"Started parsing the FENs with concurrency {self.concurrency}"
             + (" ..." if batchSize == None else f" and batch size {batchSize} ..."),
-            file=self.display,
             flush=True,
         )
         if batchSize is None:
@@ -54,7 +40,7 @@ class litrack2cdb:
                 print(await parse_line, file=self.output)
 
         elapsed = time.time() - self.tic
-        print(f"Done. Parsed {self.scored} FENs in {elapsed:.1f}s.", file=self.display)
+        print(f"Done. Parsed {self.scored} FENs in {elapsed:.1f}s.")
 
     async def parse_single_line(self, line):
         if line.startswith("#"):  # ignore comments
@@ -68,8 +54,9 @@ class litrack2cdb:
         still_in_cdb = True
         for m in moves:
             board.push(chess.Move.from_uci(m))
-            pc = chess.popcount(board.occupied)  # piece count
+            pc = chess.popcount(board.occupied)
             if pc < self.pieceMin or not bool(board.legal_moves):
+                # do not query/collect moves leading to (stale)mate or 7men EGTB
                 break
             if still_in_cdb:
                 r = await self.cdb.readscore(board.epd())
@@ -88,18 +75,16 @@ async def main():
         description="A simple script to find the cdb exit plies for a list of extended FENs stored in a file.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument(
-        "input", help="source filename with FENs (w/ or w/o move counters)"
-    )
+    parser.add_argument("input", help="source filename with extended FENs")
     parser.add_argument(
         "-o",
         "--output",
-        help="optional destination filename",
+        help="output filename",
         default="litrack_cdb.epd",
     )
     parser.add_argument(
         "--pieceMin",
-        help="Only query positions with at least this many pieces (cdb only stores positions with 8 pieces or more).",
+        help="Only query/collect positions with at least this many pieces.",
         type=int,
         default=8,
     )

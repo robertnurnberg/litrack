@@ -11,7 +11,7 @@ using namespace chess;
 
 std::vector<std::string> fens;
 
-const int tb_limit = 7;
+const int tb_limit = 7; // dumps do not contain 7men EGTB positions
 
 bool is_pos_in_cdb(std::uintptr_t handle, const Board &board) {
   auto result = cdbdirect_get(handle, board.getFen(false));
@@ -51,6 +51,7 @@ public:
     Movelist movelist;
     movegen::legalmoves(movelist, board);
     if (movelist.empty() || board.occ().count() <= tb_limit) {
+      // do not probe/collect moves leading to (stale)mate or 7men EGTB
       this->skipPgn(true);
       return;
     }
@@ -81,9 +82,25 @@ private:
   std::string fen_plus_moves = constants::STARTPOS;
 };
 
-int main(int, char const *argv[]) {
+int main(int argc, char const *argv[]) {
+  if (argc < 2 || argc > 3) {
+    std::cerr << "Usage: " << argv[0] << " <pgn_file> [<out_file>]\n\n";
+    std::cerr
+        << "For a collection of games find their exit from a cdb dump "
+           "and save the last\nknown position and the rest of the game "
+           "in the format\n\n  <FEN> [moves <m1> <m2> ...]\n\nas long as the "
+           "moves do not lead to TB7 or (stale)mate.\n";
+    return 1;
+  }
+
   const auto file = argv[1];
   auto file_stream = std::ifstream(file);
+  if (!file_stream.is_open()) {
+    std::cerr << "Error: Could not open file " << file << std::endl;
+    return 1;
+  }
+
+  const auto outfile = argc == 3 ? argv[2] : "lichess_dump.epd";
 
   std::uintptr_t handle = cdbdirect_initialize(CHESSDB_PATH);
   std::uint64_t size = cdbdirect_size(handle);
@@ -101,12 +118,12 @@ int main(int, char const *argv[]) {
     return 1;
   }
 
-  auto outfile = std::ofstream("litrack_dump.epd");
+  auto outfile_stream = std::ofstream(outfile);
   for (auto &fen : fens)
-    outfile << fen << std::endl;
+    outfile_stream << fen << std::endl;
 
-  std::cout << "Stored exit ply info for " << fens.size()
-            << " games in litrack_dump.epd." << std::endl;
+  std::cout << "Stored exit ply info for " << fens.size() << " games in "
+            << outfile << "." << std::endl;
 
   return 0;
 }
