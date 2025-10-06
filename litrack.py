@@ -18,7 +18,6 @@ def process_line(line):
     parts = line.split()
     move = int(parts[5])
     ply = (move - 1) * 2 if parts[1] == "w" else (move - 1) * 2 + 1
-    print(" ".join(parts[:6]) + f" ply = {ply}")
     return ply if "moves" in line else -ply
 
 
