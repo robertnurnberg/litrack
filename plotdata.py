@@ -135,17 +135,8 @@ class litrackdata:
     def create_timeseries_graph(self, plotStart=0):
         dateData = [datetime.fromisoformat(d + "-01") for d in self.date[plotStart:]]
         depthsData = [[] for _ in range(self.elo_buckets)]
-        NoP = [0] * self.elo_buckets
-
-        for bucket in range(self.elo_buckets):
-            for i, d in enumerate(self.depths[bucket][plotStart:]):
-                ind, n = depth_indicator(d)
-                depthsData[bucket].append(ind)
-                if i and n != NoP[bucket]:
-                    print(
-                        f"Warning: NoP changed from {NoP[bucket]} to {n} at {dateData[i]}."
-                    )
-                NoP[bucket] = n
+        minNoP = [10**10] * self.elo_buckets
+        maxNoP = [0] * self.elo_buckets
 
         fig, ax = plt.subplots()
         yColor, dateColor = "black", "black"
@@ -156,23 +147,31 @@ class litrackdata:
             depthDotSize, depthLineWidth, depthAlpha = 5, 1, 0.75
         else:
             depthDotSize, depthLineWidth, depthAlpha = 15, 1, 0.75
-        ax.scatter(
-            dateData,
-            depthsData[0],
-            color=depthColor,
-            s=depthDotSize,
-            alpha=depthAlpha,
-        )
-        ax.plot(
-            dateData,
-            depthsData[0],
-            color=depthColor,
-            linewidth=depthLineWidth,
-            alpha=depthAlpha,
-        )
-        ax.tick_params(axis="y", labelcolor=depthColor)
-        ax.ticklabel_format(axis="y", style="plain")
-        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
+
+        for elo in range(self.elo_buckets):
+            for i, d in enumerate(self.depths[elo][plotStart:]):
+                ind, n = depth_indicator(d)
+                depthsData[elo].append(ind)
+                minNoP[elo] = min(minNoP[elo], n)
+                maxNoP[elo] = max(maxNoP[elo], n)
+
+            ax.scatter(
+                dateData,
+                depthsData[elo],
+                color=depthColor,
+                s=depthDotSize,
+                alpha=depthAlpha,
+            )
+            ax.plot(
+                dateData,
+                depthsData[elo],
+                color=depthColor,
+                linewidth=depthLineWidth,
+                alpha=depthAlpha,
+                label=self.eloStr[elo],
+            )
+        ax.legend(fontsize=5)
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
         plt.setp(
             ax.get_xticklabels(),
             rotation=45,
@@ -181,14 +180,23 @@ class litrackdata:
             fontsize=6,
         )
         ax.grid(alpha=0.4, linewidth=0.5)
-        fig.suptitle(f"     Progress indicators from {self.prefix}.csv.")
-        plt.figtext(0.02, 0.91, depthIndicatorStr, fontsize=9, color=depthColor)
-        pair = r"$(e_i, d_i)$"
+        prefix = self.prefix.replace("_", r"\_")
+        bold = rf"$\bf{{{prefix}}}$"
+        fig.suptitle(f"     Progress indicators from {bold}.csv.")
+        plt.figtext(0.02, 0.91, depthIndicatorStr, fontsize=9)
+        pair = r"$d_i$"
         infty = r"$d_i=\infty$"
-        noStr = str(max(NoP))
-        noStr = shrink_number_string(noStr)
+        parts = []
+        minNoP = [m if m != 10**10 else 0 for m in minNoP]
+        for elo in reversed(range(self.elo_buckets)):
+            min_val, max_val = minNoP[elo], maxNoP[elo]
+            s_min = shrink_number_string(min_val)
+            s_max = shrink_number_string(max_val)
+            parts.append(s_min if s_min == s_max else f"{s_min}-{s_max}")
+
+        noStr = parts[0] if len(set(parts)) == 1 else "(" + ", ".join(parts) + ")"
         ax.set_title(
-            f"     Based on {noStr} (eval, depth) data points {pair}, {infty} for terminal PVs.",
+            f"     Based on {noStr} exit ply data points {pair}, {infty} for terminal games.",
             fontsize=6,
             family="monospace",
         )
