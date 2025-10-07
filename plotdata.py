@@ -98,7 +98,6 @@ class litrackdata:
                     rangeStr = f"[{mi}, {negmax}]{cup}[{posmin}, {ma}]"
                 else:
                     rangeStr = f"[{mi}, {ma}]"
-                print(sum(dictList[elo][Idx].values()))
                 noStr = shrink_number_string(sum(dictList[elo][Idx].values()))
                 label[Idx] = f"{dateStr}   ({noStr} in {rangeStr})"
                 ax[elo].hist(
