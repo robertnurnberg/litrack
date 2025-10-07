@@ -4,10 +4,10 @@
 set -e
 
 lock_file=litrack.lock
-first="2015-01"
-last="2015-01"
+first="2025-01"
+last="2025-09"
 # last=$(date +%Y-%m)  # get today's month
-sample_size=10
+sample_size=100000
 elo_buckets="2200 1800_2200 1400_1800"
 
 if [[ -f $lock_file ]]; then
@@ -63,6 +63,13 @@ for month in $months; do
   echo "TC+Elo bucket filtering finished at: " $(date)
 
   for tc in $tcs; do
+    dump_csv=litrack_${tc}_dump.csv
+    cdb_csv=litrack_${tc}_cdb.csv
+    grep -q "$month" "$dump_csv" && dump_done="yes" || dump_done="no"
+    grep -q "$month" "$cdb_csv" && cdb_done="yes" || cdb_done="no"
+    if [ "$dump_done" = "yes" ] && [ "$cdb_done" = "yes" ]; then
+      continue;
+    fi
     bench="N/A"
     dump_results=
     cdb_results=
@@ -72,27 +79,33 @@ for month in $months; do
       dump_output="${bucket}_dump.epd"
       cdb_output="${bucket}_cdb.epd"
       if [[ -f $pgn ]]; then
+        # need the output for cdb, so always run
         ./litrack2dump $pgn $dump_output >&dump.log
         bench=$(grep Opened dump.log | awk '{print $4}')
         echo "Dump probing for ${tc}_$elo finished at: " $(date)
-
-        python litrack2cdb.py $dump_output -s -u rob -o $cdb_output >&cdb.log
-        echo "Api querying for ${tc}_$elo finished at: " $(date)
-
         dump_results="${dump_results}","$(python litrack.py $dump_output)"
-        cdb_results="${cdb_results}","$(python litrack.py $cdb_output)"
+
+        if [ "$cdb_done" = "no" ]; then
+          python litrack2cdb.py $dump_output -s -u rob -o $cdb_output >&cdb.log
+          echo "Api querying for ${tc}_$elo finished at: " $(date)
+          cdb_results="${cdb_results}","$(python litrack.py $cdb_output)"
+        fi
       else
         dump_results="${dump_results}",
         cdb_results="${cdb_results}",
       fi
     done
     timestamp=$(date +%Y-%m-%d)
-    dump_csv=litrack_${tc}_dump.csv
-    cdb_csv=litrack_${tc}_cdb.csv
-    echo $month,$bench$dump_results >>$dump_csv
-    echo $month,$timestamp$cdb_results >>$cdb_csv
-    # python plotdata.py $csv
-    #  git add $csv # TODO add png files
+    if [ "$dump_done" = "no" ]; then
+      echo $month,$bench$dump_results >>$dump_csv
+      # python plotdata.py $dump_csv
+      # git add $dump_csv # TODO add png files
+    fi
+    if [ "$cdb_done" = "no" ]; then
+      echo $month,$timestamp$cdb_results >>$cdb_csv
+      # python plotdata.py $cdb_csv
+      # git add $cdb_csv # TODO add png files
+    fi
   done
 done
 
