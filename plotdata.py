@@ -50,58 +50,53 @@ class litrackdata:
 
     def create_distribution_graph(self, logplot, negplot, densityplot):
         color, edgecolor, label = ["red", "blue"], ["yellow", "black"], [None, None]
-        dictList = [None, None]  # list for the two dicts to plot
-        rangeMin, rangeMax = None, None
-        print(self.depths)
-        for Idx in [0, -1]:
-            dateStr, _, _ = self.date[Idx].partition("T")
-            dictList[Idx] = self.depths[0][Idx].copy()
-            # negative PV lengths mean PVs that end in a terminal draw
-            for key, value in list(dictList[Idx].items()):
-                if key <= -10000 or (key < 0 and not negplot):
-                    newkey = -(-key % 10000) if key <= -10000 else key
-                    if not negplot:
-                        newkey = -newkey
-                    if key != newkey:
-                        dictList[Idx][newkey] = dictList[Idx].get(newkey, 0) + value
-                        del dictList[Idx][key]
-            mi, ma = min(dictList[Idx].keys()), max(dictList[Idx].keys())
-            rangeMin = mi if rangeMin is None else min(mi, rangeMin)
-            rangeMax = ma if rangeMax is None else max(ma, rangeMax)
-            if negplot and mi < 0 and ma > 0:
-                negmax = max([k for k in dictList[Idx].keys() if k < 0])
-                posmin = min([k for k in dictList[Idx].keys() if k > 0])
-                cup = r"$\cup$"
-                label[Idx] = f"{dateStr}   (in [{mi}, {negmax}]{cup}[{posmin}, {ma}])"
-            else:
-                label[Idx] = f"{dateStr}   (in [{mi}, {ma}])"
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(self.elo_buckets, 1)
         perBin = 1
-        for Idx in [0, -1]:
-            ax.hist(
-                dictList[Idx].keys(),
-                weights=dictList[Idx].values(),
-                range=(rangeMin, rangeMax),
-                bins=(rangeMax - rangeMin) // perBin,
-                density=densityplot,
-                alpha=0.5,
-                color=color[Idx],
-                edgecolor=edgecolor[Idx],
-                label=label[Idx],
-            )
-        ax.legend(fontsize=7)
+        for elo in range(self.elo_buckets):
+            dictList = [None, None]
+            rangeMin, rangeMax = None, None
+            for Idx in [0, -1]:
+                dateStr, _, _ = self.date[Idx].partition("T")
+                dictList[Idx] = self.depths[elo][Idx].copy()
+                # negative depths mean games that end in cdb
+                for key, value in list(dictList[Idx].items()):
+                    if key < 0 and not negplot:
+                        dictList[Idx][-key] = dictList[Idx].get(-key, 0) + value
+                        del dictList[Idx][key]
+                mi, ma = min(dictList[Idx].keys()), max(dictList[Idx].keys())
+                rangeMin = mi if rangeMin is None else min(mi, rangeMin)
+                rangeMax = ma if rangeMax is None else max(ma, rangeMax)
+                if negplot and mi < 0 and ma > 0:
+                    negmax = max([k for k in dictList[Idx].keys() if k < 0])
+                    posmin = min([k for k in dictList[Idx].keys() if k > 0])
+                    cup = r"$\cup$"
+                    label[Idx] = f"{dateStr}   (in [{mi}, {negmax}]{cup}[{posmin}, {ma}])"
+                else:
+                    label[Idx] = f"{dateStr}   (in [{mi}, {ma}])"
+                ax[elo].hist(
+                    dictList[Idx].keys(),
+                    weights=dictList[Idx].values(),
+                    range=(rangeMin, rangeMax),
+                    bins=(rangeMax - rangeMin) // perBin,
+                    density=densityplot,
+                    alpha=0.5,
+                    color=color[Idx],
+                    edgecolor=edgecolor[Idx],
+                    label=label[Idx],
+                )
+            ax[elo].legend(fontsize=7)
+            if logplot:
+                ax[elo].set_yscale("log")
+            if not densityplot:
+                ax[elo].yaxis.set_major_locator(MaxNLocator(integer=True))
         bold = r"$\bf{exit\ ply}$"
         fig.suptitle(f"Distribution of cdb {bold} in {self.prefix}.csv.")
         if negplot:
-            ax.set_title(
+            fig.set_title(
                 "(A negative ply -d means that a game with d plies ends in cdb.)",
                 fontsize=6,
                 family="monospace",
             )
-        if logplot:
-            ax.set_yscale("log")
-        if not densityplot:
-            ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
         plt.savefig(self.prefix + ".png", dpi=300)
 
