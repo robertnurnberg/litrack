@@ -12,10 +12,10 @@ following:
 * Checks [Lichess open database](https://database.lichess.org) for a new monthly
   release of rated standard chess games.
 * Runs the awk script [`create_tc_Elo_buckets.awk`](create_tc_Elo_buckets.awk)
-  to randomly sample 100K each for the Elo brackets 2200+, 1800-2200, 1400-1800
-  at blitz, rapid and classical time controls. The script uses reservoir
-  sampling and only selects from games that terminate normally and have at
-  least one (half)move.
+  to randomly sample (up to) 100K each for the Elo brackets 2200+, 1800-2200, 
+  1400-1800 at blitz, rapid and classical time controls. The script uses 
+  reservoir sampling and only selects from games that terminate normally and 
+  have at least one (half)move.
 * Runs a compiled binary of [`litrack2dump.cpp`](litrack2dump.cpp) to 
   probe a local cdb dump for the exit plies of the 900K games and stores the
   FEN of the final position still in the dump, together with the remaining
