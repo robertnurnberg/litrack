@@ -183,7 +183,7 @@ class litrackdata:
         prefix = self.prefix.replace("_", r"\_")
         bold = rf"$\bf{{{prefix}}}$"
         fig.suptitle(f"     Progress indicators from {bold}.csv.")
-        plt.figtext(0.02, 0.91, depthIndicatorStr, fontsize=9)
+        plt.figtext(0.02, 0.92, depthIndicatorStr, fontsize=9)
         pair = r"$d_i$"
         infty = r"$d_i=\infty$"
         parts = []
@@ -200,6 +200,7 @@ class litrackdata:
             fontsize=6,
             family="monospace",
         )
+        fig.tight_layout(rect=[0, 0, 1, 1.03])
         plt.savefig(
             self.prefix + "time" + bool(plotStart) * str(plotStart) + ".png", dpi=300
         )
