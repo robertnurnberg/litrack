@@ -4,10 +4,10 @@
 set -e
 
 lock_file=litrack.lock
-first="2025-01"
-last="2025-09"
+first="2015-01"
+last="2015-01"
 # last=$(date +%Y-%m)  # get today's month
-sample_size=100000
+sample_size=10
 elo_buckets="2200 1800_2200 1400_1800"
 
 if [[ -f $lock_file ]]; then
@@ -75,7 +75,7 @@ for month in $months; do
       if [[ -f $pgn ]]; then
         ./litrack2dump $pgn $dump_output >&$out
         bench=$(grep Opened $out | awk '{print $4}')
-        python litrack2cdb.py $dump_output -o $cdb_output
+        python litrack2cdb.py $dump_output -s -u rob -o $cdb_output
         dump_results="${dump_results}","$(python litrack.py $dump_output)"
         cdb_results="${cdb_results}","$(python litrack.py $cdb_output)"
       else
