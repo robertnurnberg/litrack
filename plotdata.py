@@ -8,6 +8,7 @@ from matplotlib.ticker import FuncFormatter
 
 depthIndicatorStr = ""
 
+
 def depth_indicator(d):
     global depthIndicatorStr
     depthIndicatorStr = r"$N \left(\sum_i\ \frac{1}{d_i}\right)^{-1}$"
@@ -26,6 +27,16 @@ def depth_average(d):
             s += v * k
             c += v
     return s / c
+
+
+def shrink_number_string(s):
+    s = str(s)
+    if s.endswith("0" * 9):
+        return s[:-9] + "G"
+    elif s.endswith("0" * 6):
+        return s[:-6] + "M"
+    elif s.endswith("0" * 3):
+        return s[:-3] + "K"
 
 
 class litrackdata:
@@ -83,11 +94,11 @@ class litrackdata:
                     negmax = max([k for k in dictList[elo][Idx].keys() if k < 0])
                     posmin = min([k for k in dictList[elo][Idx].keys() if k > 0])
                     cup = r"$\cup$"
-                    label[
-                        Idx
-                    ] = f"{dateStr}   (in [{mi}, {negmax}]{cup}[{posmin}, {ma}])"
+                    rangeStr = f"[{mi}, {negmax}]{cup}[{posmin}, {ma}]"
                 else:
-                    label[Idx] = f"{dateStr}   (in [{mi}, {ma}])"
+                    rangeStr = f"[{mi}, {ma}]"
+                noStr = shrink_number_string(sum(dictList[elo][Idx].values()))
+                label[Idx] = f"{dateStr}   ({noStr} in {rangeStr})"
                 ax[elo].hist(
                     dictList[elo][Idx].keys(),
                     weights=dictList[elo][Idx].values(),
@@ -99,14 +110,16 @@ class litrackdata:
                     edgecolor=edgecolor[Idx],
                     label=label[Idx],
                 )
-            ax[elo].legend(title=self.eloStr[elo], fontsize=5, title_fontproperties={"size": 6, "weight": "bold"})
+            ax[elo].legend(
+                title=self.eloStr[elo],
+                fontsize=5,
+                title_fontproperties={"size": 6, "weight": "bold"},
+            )
 
             if logplot:
                 ax[elo].set_yscale("log")
-            if not densityplot:
-                ax[elo].yaxis.set_major_locator(MaxNLocator(integer=True))
-        prefix = self.prefix.replace('_', r'\_')
-        bold = fr"$\bf{{{prefix}}}$"
+        prefix = self.prefix.replace("_", r"\_")
+        bold = rf"$\bf{{{prefix}}}$"
         fig.suptitle(f"Distribution of cdb exit ply in {bold}.csv.")
         if negplot:
             ax[0].set_title(
@@ -172,12 +185,7 @@ class litrackdata:
         pair = r"$(e_i, d_i)$"
         infty = r"$d_i=\infty$"
         noStr = str(max(NoP))
-        if noStr.endswith("0" * 9):
-            noStr = noStr[:-9] + "G"  #  :)
-        elif noStr.endswith("0" * 6):
-            noStr = noStr[:-6] + "M"
-        elif noStr.endswith("0" * 3):
-            noStr = noStr[:-3] + "K"
+        noStr = shrink_number_string(noStr)
         ax.set_title(
             f"     Based on {noStr} (eval, depth) data points {pair}, {infty} for terminal PVs.",
             fontsize=6,
