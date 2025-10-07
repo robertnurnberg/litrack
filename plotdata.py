@@ -8,7 +8,6 @@ from matplotlib.ticker import FuncFormatter
 
 depthIndicatorStr = ""
 
-
 def depth_indicator(d):
     global depthIndicatorStr
     depthIndicatorStr = r"$N \left(\sum_i\ \frac{1}{d_i}\right)^{-1}$"
@@ -100,25 +99,22 @@ class litrackdata:
                     edgecolor=edgecolor[Idx],
                     label=label[Idx],
                 )
-            handles, _ = ax[elo].get_legend_handles_labels()
-            ax[elo].plot([], [], color="none", label=self.eloStr[elo])
-            all_handles, _ = ax[elo].get_legend_handles_labels()
-            handles = [all_handles[-1]] + all_handles[:-1]
-            ax[elo].legend(handles=handles, fontsize=5)
+            ax[elo].legend(title=self.eloStr[elo], fontsize=5, title_fontproperties={"size": 6, "weight": "bold"})
 
             if logplot:
                 ax[elo].set_yscale("log")
             if not densityplot:
                 ax[elo].yaxis.set_major_locator(MaxNLocator(integer=True))
-        bold = r"$\bf{exit\ ply}$"
-        fig.suptitle(f"Distribution of cdb {bold} in {self.prefix}.csv.")
+        prefix = self.prefix.replace('_', r'\_')
+        bold = fr"$\bf{{{prefix}}}$"
+        fig.suptitle(f"Distribution of cdb exit ply in {bold}.csv.")
         if negplot:
             ax[0].set_title(
                 "(A negative ply -d means that a game with d plies ends in cdb.)",
                 fontsize=6,
                 family="monospace",
             )
-        fig.tight_layout(rect=[0, 0, 1, 1.02])
+        fig.tight_layout(rect=[0, 0, 1, 1.03])
 
         plt.savefig(self.prefix + ".png", dpi=300)
 
