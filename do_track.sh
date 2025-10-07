@@ -22,7 +22,6 @@ echo "started at: " $(date)
 dbs="dump cdb"
 tcs="blitz rapid classical"
 lichess_prefix="lichess_db_standard_rated_"
-out=out.tmp
 
 for db in $dbs; do
   for tc in $tcs; do
@@ -73,9 +72,13 @@ for month in $months; do
       dump_output="${bucket}_dump.epd"
       cdb_output="${bucket}_cdb.epd"
       if [[ -f $pgn ]]; then
-        ./litrack2dump $pgn $dump_output >&$out
-        bench=$(grep Opened $out | awk '{print $4}')
-        python litrack2cdb.py $dump_output -s -u rob -o $cdb_output
+        ./litrack2dump $pgn $dump_output >&dump.log
+        bench=$(grep Opened dump.log | awk '{print $4}')
+        echo "Dump probing for ${tc}_$elo finished at: " $(date)
+
+        python litrack2cdb.py $dump_output -s -u rob -o $cdb_output >&cdb.log
+        echo "Api querying for ${tc}_$elo finished at: " $(date)
+
         dump_results="${dump_results}","$(python litrack.py $dump_output)"
         cdb_results="${cdb_results}","$(python litrack.py $cdb_output)"
       else
