@@ -105,11 +105,12 @@ class litrackdata:
         bold = r"$\bf{exit\ ply}$"
         fig.suptitle(f"Distribution of cdb {bold} in {self.prefix}.csv.")
         if negplot:
-            fig.set_title(
+            ax[0].set_title(
                 "(A negative ply -d means that a game with d plies ends in cdb.)",
                 fontsize=6,
                 family="monospace",
             )
+        fig.tight_layout(rect=[0, 0, 1, 1.02])
 
         plt.savefig(self.prefix + ".png", dpi=300)
 
