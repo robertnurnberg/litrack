@@ -139,8 +139,10 @@ class litrackdata:
         maxNoP = [0] * self.elo_buckets
 
         fig, ax = plt.subplots()
-        yColor, dateColor = "black", "black"
-        depthColor = "firebrick"
+        dateColor = "black"
+        # eloColor = ['royalblue', 'darkorange', 'forestgreen']
+        # eloColor = ['mediumaquamarine', 'coral', 'cornflowerblue']
+        eloColor = ["crimson", "mediumblue", "limegreen"]
         if len(dateData) >= 200:
             depthDotSize, depthLineWidth, depthAlpha = 2, 0.7, 0.75
         elif len(dateData) >= 100:
@@ -158,19 +160,21 @@ class litrackdata:
             ax.scatter(
                 dateData,
                 depthsData[elo],
-                color=depthColor,
+                color=eloColor[elo],
                 s=depthDotSize,
                 alpha=depthAlpha,
             )
             ax.plot(
                 dateData,
                 depthsData[elo],
-                color=depthColor,
+                color=eloColor[elo],
                 linewidth=depthLineWidth,
                 alpha=depthAlpha,
                 label=self.eloStr[elo],
             )
-        ax.legend(fontsize=5)
+        leg = ax.legend(fontsize=5)
+        for i, text in enumerate(leg.get_texts()):
+            text.set_color(eloColor[i])
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
         plt.setp(
             ax.get_xticklabels(),
@@ -206,52 +210,53 @@ class litrackdata:
         )
 
     def create_depth_graph(self, filename, plotStart=0):
-        dateData = [datetime.fromisoformat(d) for d in self.date[plotStart:]]
+        dateData = [datetime.fromisoformat(d + "-01") for d in self.date[plotStart:]]
         depthsAvg = [[] for _ in range(self.elo_buckets)]
         depthsMin = [[] for _ in range(self.elo_buckets)]
         depthsMax = [[] for _ in range(self.elo_buckets)]
 
-        for bucket in range(self.elo_buckets):
-            for d in self.depths[bucket][plotStart:]:
-                depthsAvg[bucket].append(depth_average(d))
-                depthsMax[bucket].append(max(d.keys()))
-                depthsMin[bucket].append(min([k for k in d.keys() if k > 0]))
-
         fig, ax = plt.subplots()
         ax2 = ax.twinx()
         dotSize, lineWidth, alpha = 2, 0.7, 0.75
-        ax.scatter(
-            dateData,
-            depthsAvg[0],
-            color="black",
-            s=dotSize,
-            alpha=alpha,
-        )
-        ax.scatter(
-            dateData,
-            depthsMax[0],
-            color="silver",
-            s=dotSize,
-            alpha=alpha,
-        )
-        ax2.scatter(
-            dateData,
-            depthsMin[0],
-            color="red",
-            s=dotSize,
-            alpha=alpha,
-        )
-        ax.plot(
-            dateData,
-            depthsAvg[0],
-            color="black",
-            linewidth=lineWidth,
-            alpha=alpha,
-        )
+
+        for elo in range(self.elo_buckets):
+            for d in self.depths[elo][plotStart:]:
+                depthsAvg[elo].append(depth_average(d))
+                depthsMax[elo].append(max(d.keys()))
+                depthsMin[elo].append(min([k for k in d.keys() if k > 0]))
+
+            ax.scatter(
+                dateData,
+                depthsAvg[elo],
+                color="black",
+                s=dotSize,
+                alpha=alpha,
+            )
+            ax.scatter(
+                dateData,
+                depthsMax[elo],
+                color="silver",
+                s=dotSize,
+                alpha=alpha,
+            )
+            ax2.scatter(
+                dateData,
+                depthsMin[elo],
+                color="red",
+                s=dotSize,
+                alpha=alpha,
+            )
+            ax.plot(
+                dateData,
+                depthsAvg[elo],
+                color="black",
+                linewidth=lineWidth,
+                alpha=alpha,
+            )
         ax.tick_params(axis="y", labelcolor="black")
         ax2.tick_params(axis="y", labelcolor="red")
         ax2.ticklabel_format(axis="y", style="plain")
-        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
         plt.setp(
             ax.get_xticklabels(),
             rotation=45,
@@ -260,7 +265,9 @@ class litrackdata:
             fontsize=6,
         )
         ax.grid(alpha=0.4, linewidth=0.5)
-        fig.suptitle(f" Non terminal exit plies from {self.prefix}.csv over time.")
+        prefix = self.prefix.replace("_", r"\_")
+        bold = rf"$\bf{{{prefix}}}$"
+        fig.suptitle(f" Non terminal exit plies from {bold}.csv over time.")
         ybox1 = TextArea(
             "average length",
             textprops=dict(size=9, color="black", rotation=90, ha="left", va="bottom"),
@@ -281,6 +288,7 @@ class litrackdata:
         )
         ax.add_artist(anchored_ybox)
         ax2.set_ylabel("min length", color="red")
+        fig.tight_layout(rect=[0, 0, 1, 1.03])
 
         plt.savefig(filename, dpi=300)
 
