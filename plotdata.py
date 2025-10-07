@@ -35,18 +35,21 @@ class litrackdata:
         self.date = []  # datetime entries
         self.elo_buckets = 3
         self.depths = [[] for _ in range(self.elo_buckets)]  # depth distributions
+        self.eloStr = [""] * self.elo_buckets
         with open(prefix + ".csv") as f:
             for line in f:
                 line = line.strip()
                 if line.startswith("Month"):
-                    continue
-                if line:
+                    fields = line.split(",")
+                    for elo in range(self.elo_buckets):
+                        self.eloStr[elo] = fields[2 + elo]
+                elif line:
                     fields = line.split(",")
                     month = fields[0]
                     self.date.append(month)
-                    for bucket in range(self.elo_buckets):
-                        dictStr = fields[2 + bucket].replace(";", ",")
-                        self.depths[bucket].append(ast.literal_eval(dictStr))
+                    for elo in range(self.elo_buckets):
+                        dictStr = fields[2 + elo].replace(";", ",")
+                        self.depths[elo].append(ast.literal_eval(dictStr))
 
     def create_distribution_graph(self, logplot, negplot, densityplot):
         color, edgecolor, label = ["red", "blue"], ["yellow", "black"], [None, None]
@@ -97,7 +100,12 @@ class litrackdata:
                     edgecolor=edgecolor[Idx],
                     label=label[Idx],
                 )
-            ax[elo].legend(fontsize=6)
+            handles, _ = ax[elo].get_legend_handles_labels()
+            ax[elo].plot([], [], color="none", label=self.eloStr[elo])
+            all_handles, _ = ax[elo].get_legend_handles_labels()
+            handles = [all_handles[-1]] + all_handles[:-1]
+            ax[elo].legend(handles=handles, fontsize=5)
+
             if logplot:
                 ax[elo].set_yscale("log")
             if not densityplot:
