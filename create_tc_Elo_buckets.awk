@@ -16,7 +16,7 @@ BEGIN {
 
 # This function determines the bucket and performs reservoir sampling.
 function process_game(elo_bracket, bucket_id, n, j, combined_key) {
-  if (game_tc == "") {
+  if (game_tc == "" || termination != "Normal") {
     return;
   }
 
@@ -57,6 +57,7 @@ function process_game(elo_bracket, bucket_id, n, j, combined_key) {
   w_elo = 0;
   b_elo = 0;
   game_tc = "";
+  termination = "";
 
   lc_line = tolower($0);
   for (i in target_tcs) {
@@ -70,6 +71,7 @@ function process_game(elo_bracket, bucket_id, n, j, combined_key) {
 
 /\[WhiteElo / { split($0, a, "\""); w_elo=a[2]+0; }
 /\[BlackElo / { split($0, a, "\""); b_elo=a[2]+0; }
+/\[Termination / { split($0, a, "\""); termination=a[2]; }
 { game_buffer = game_buffer $0 "\n"; }
 
 END {
@@ -85,6 +87,6 @@ END {
       printf "%s", reservoir[combined_key] > outfile;
     }
 
-    close(cmd);
+    close(outfile);
   }
 }
