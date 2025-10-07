@@ -52,9 +52,25 @@ class litrackdata:
         color, edgecolor, label = ["red", "blue"], ["yellow", "black"], [None, None]
         fig, ax = plt.subplots(self.elo_buckets, 1)
         perBin = 1
+        # first find common range for all elo buckets
+        rangeMin, rangeMax = None, None
+        for elo_bucket in range(self.elo_buckets):
+            for Idx in [0, -1]:
+                temp_depths = self.depths[elo_bucket][Idx].copy()
+                for key, value in list(temp_depths.items()):
+                    if key < 0 and not negplot:
+                        temp_depths[-key] = temp_depths.get(-key, 0) + value
+                        del temp_depths[key]
+                mi, ma = min(temp_depths.keys()), max(temp_depths.keys())
+                if rangeMin is None:
+                    rangeMin, rangeMax = mi, ma
+                else:
+                    rangeMin = min(mi, rangeMin)
+                    rangeMax = max(ma, rangeMax)
+
+        numBins = max(1, (rangeMax - rangeMin) // perBin)
         for elo in range(self.elo_buckets):
             dictList = [None, None]
-            rangeMin, rangeMax = None, None
             for Idx in [0, -1]:
                 dateStr, _, _ = self.date[Idx].partition("T")
                 dictList[Idx] = self.depths[elo][Idx].copy()
@@ -64,20 +80,20 @@ class litrackdata:
                         dictList[Idx][-key] = dictList[Idx].get(-key, 0) + value
                         del dictList[Idx][key]
                 mi, ma = min(dictList[Idx].keys()), max(dictList[Idx].keys())
-                rangeMin = mi if rangeMin is None else min(mi, rangeMin)
-                rangeMax = ma if rangeMax is None else max(ma, rangeMax)
                 if negplot and mi < 0 and ma > 0:
                     negmax = max([k for k in dictList[Idx].keys() if k < 0])
                     posmin = min([k for k in dictList[Idx].keys() if k > 0])
                     cup = r"$\cup$"
-                    label[Idx] = f"{dateStr}   (in [{mi}, {negmax}]{cup}[{posmin}, {ma}])"
+                    label[
+                        Idx
+                    ] = f"{dateStr}   (in [{mi}, {negmax}]{cup}[{posmin}, {ma}])"
                 else:
                     label[Idx] = f"{dateStr}   (in [{mi}, {ma}])"
                 ax[elo].hist(
                     dictList[Idx].keys(),
                     weights=dictList[Idx].values(),
                     range=(rangeMin, rangeMax),
-                    bins=(rangeMax - rangeMin) // perBin,
+                    bins=numBins,
                     density=densityplot,
                     alpha=0.5,
                     color=color[Idx],
