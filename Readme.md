@@ -23,29 +23,29 @@ Hence $D$ is an approximation of the games' average exit ply on cdb.
 <table>
   <tr>
     <td align="center">
-      <img src="litrack_blitz_cdb.png?raw=true" width="100%">
+      <img src="images/litrack_blitz_cdb.png?raw=true" width="100%">
       <div align="right">
-        <sup><i>log plot: <a href="litrack_blitz_cdb_log.png?raw=true">&bull;</a></i></sup>
+        <sup><i>log plot: <a href="images/litrack_blitz_cdb_log.png?raw=true">&bull;</a></i></sup>
       </div>
     </td>
     <td align="center">
-      <img src="litrack_rapid_cdb.png?raw=true" width="100%">
+      <img src="images/litrack_rapid_cdb.png?raw=true" width="100%">
       <div align="right">
-        <sup><i>log plot: <a href="litrack_rapid_cdb_log.png?raw=true">&bull;</a></i></sup>
+        <sup><i>log plot: <a href="images/litrack_rapid_cdb_log.png?raw=true">&bull;</a></i></sup>
       </div>
     </td>
     <td align="center">
-      <img src="litrack_classical_cdb.png?raw=true" width="100%">
+      <img src="images/litrack_classical_cdb.png?raw=true" width="100%">
       <div align="right">
-        <sup><i>log plot: <a href="litrack_classical_cdb_log.png?raw=true">&bull;</a></i></sup>
+        <sup><i>log plot: <a href="images/litrack_classical_cdb_log.png?raw=true">&bull;</a></i></sup>
       </div>
     </td>
   </tr>
 
   <tr>
-    <td align="center"><img src="litrack_blitz_cdbtime.png?raw=true" width="100%"></td>
-    <td align="center"><img src="litrack_rapid_cdbtime.png?raw=true" width="100%"></td>
-    <td align="center"><img src="litrack_classical_cdbtime.png?raw=true" width="100%"></td>
+    <td align="center"><img src="images/litrack_blitz_cdbtime.png?raw=true" width="100%"></td>
+    <td align="center"><img src="images/litrack_rapid_cdbtime.png?raw=true" width="100%"></td>
+    <td align="center"><img src="images/litrack_classical_cdbtime.png?raw=true" width="100%"></td>
   </tr>
 </table>
 
@@ -56,29 +56,29 @@ Hence $D$ is an approximation of the games' average exit ply on cdb.
 <table>
   <tr>
     <td align="center">
-      <img src="litrack_blitz_dump.png?raw=true" width="100%">
+      <img src="images/litrack_blitz_dump.png?raw=true" width="100%">
       <div align="right">
-        <sup><i>log plot: <a href="litrack_blitz_dump_log.png?raw=true">&bull;</a></i></sup>
+        <sup><i>log plot: <a href="images/litrack_blitz_dump_log.png?raw=true">&bull;</a></i></sup>
       </div>
     </td>
     <td align="center">
-      <img src="litrack_rapid_dump.png?raw=true" width="100%">
+      <img src="images/litrack_rapid_dump.png?raw=true" width="100%">
       <div align="right">
-        <sup><i>log plot: <a href="litrack_rapid_dump_log.png?raw=true">&bull;</a></i></sup>
+        <sup><i>log plot: <a href="images/litrack_rapid_dump_log.png?raw=true">&bull;</a></i></sup>
       </div>
     </td>
     <td align="center">
-      <img src="litrack_classical_dump.png?raw=true" width="100%">
+      <img src="images/litrack_classical_dump.png?raw=true" width="100%">
       <div align="right">
-        <sup><i>log plot: <a href="litrack_classical_dump_log.png?raw=true">&bull;</a></i></sup>
+        <sup><i>log plot: <a href="images/litrack_classical_dump_log.png?raw=true">&bull;</a></i></sup>
       </div>
     </td>
   </tr>
 
   <tr>
-    <td align="center"><img src="litrack_blitz_dumptime.png?raw=true" width="100%"></td>
-    <td align="center"><img src="litrack_rapid_dumptime.png?raw=true" width="100%"></td>
-    <td align="center"><img src="litrack_classical_dumptime.png?raw=true" width="100%"></td>
+    <td align="center"><img src="images/litrack_blitz_dumptime.png?raw=true" width="100%"></td>
+    <td align="center"><img src="images/litrack_rapid_dumptime.png?raw=true" width="100%"></td>
+    <td align="center"><img src="images/litrack_classical_dumptime.png?raw=true" width="100%"></td>
   </tr>
 </table>
 
