@@ -19,7 +19,7 @@ $(EXE_FILE): $(SRC_FILE)
 
 format:
 	clang-format -i $(SRC_FILE)
-	black litrack2cdb.py litrack.py
+	black litrack2cdb.py litrack.py plotdata.py
 	shfmt -w -i 2 do_track.sh
 
 clean:

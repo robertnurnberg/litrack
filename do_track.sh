@@ -5,7 +5,7 @@ set -e
 
 lock_file=litrack.lock
 months_begin="2025-09"
-months_end=$(date +%Y-%m)  # get today's month
+months_end=$(date +%Y-%m) # get today's month
 sample_size=100000
 elo_buckets="2200 1800_2200 1400_1800"
 
@@ -67,7 +67,7 @@ for month in $months; do
     grep -q "$month" "$dump_csv" && dump_done="yes" || dump_done="no"
     grep -q "$month" "$cdb_csv" && cdb_done="yes" || cdb_done="no"
     if [ "$dump_done" = "yes" ] && [ "$cdb_done" = "yes" ]; then
-      continue;
+      continue
     fi
     bench="N/A"
     dump_results=
