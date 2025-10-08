@@ -209,7 +209,7 @@ class litrackdata:
             self.prefix + "time" + bool(plotStart) * str(plotStart) + ".png", dpi=300
         )
 
-    def create_depth_graph(self, filename, plotStart=0):
+    def create_avgminmax_graph(self, filename, plotStart=0):
         dateData = [datetime.fromisoformat(d + "-01") for d in self.date[plotStart:]]
         depthsAvg = [[] for _ in range(self.elo_buckets)]
         depthsMin = [[] for _ in range(self.elo_buckets)]
@@ -325,7 +325,7 @@ if __name__ == "__main__":
         help="Create only time evolution graphs.",
     )
     parser.add_argument(
-        "--PvLengthPlot",
+        "--AvgMinMaxPlot",
         help="Optional filename for time series plot of exit ply statistics.",
     )
     args = parser.parse_args()
@@ -335,5 +335,5 @@ if __name__ == "__main__":
     if not args.onlyTime:
         data.create_distribution_graph(args.logplot, args.negplot, args.densityplot)
     data.create_timeseries_graph()
-    if args.PvLengthPlot:
-        data.create_depth_graph(args.PvLengthPlot)
+    if args.AvgMinMaxPlot:
+        data.create_avgminmax_graph(args.AvgMinMaxPlot)
