@@ -3,11 +3,11 @@
 # exit on errors
 set -e
 
-lock_file=litrack.lock
 months_begin="2025-09"
 months_end=$(date +%Y-%m) # get today's month
 sample_size=100000
 elo_buckets="2200 1800_2200 1400_1800"
+lock_file=litrack.lock
 
 if [[ -f $lock_file ]]; then
   echo "Lock file exists, exiting."
@@ -35,7 +35,7 @@ for db in $dbs; do
   done
 done
 
-# Compute all year-month strings between $months_begin and $months_end
+# compute all YYYY-MM strings between $months_begin and $months_end
 months=$(
   current_date=$(date -d "$months_begin-01" +%Y-%m-%d)
   end_date=$(date -d "$months_end-01" +%Y-%m-%d)
@@ -106,14 +106,17 @@ for month in $months; do
   for db in $dbs; do
     for tc in $tcs; do
       prefix=litrack_${tc}_$db
-      python plotdata.py $prefix.csv
-      git add $prefix.csv $prefix.png ${prefix}_log.png ${prefix}time.png
+      python plotdata.py $prefix.csv --negplot --logplot 
+      mv $prefix.png images/${prefix}_log.png
+      python plotdata.py $prefix.csv --negplot --AvgMinMaxPlot ${prefix}_avgminmax.png
+      mv $prefix.png $prefix{time}.png images/
+      git add $prefix.csv images/$prefix.png $images/{prefix}_log.png $images/{prefix}time.png
     done
   done
 done
 
-#  git diff --staged --quiet || git commit -m "Update results"
-#  git push origin master >&push.log
+git diff --staged --quiet || git commit -m "Update results"
+git push origin master >&push.log
 
 rm -f $lock_file
 
