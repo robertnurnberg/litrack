@@ -106,12 +106,22 @@ int main(int argc, char const *argv[]) {
   std::uint64_t size = cdbdirect_size(handle);
   std::cout << "Opened DB with " << size << " stored positions." << std::endl;
 
+  const auto t0 = std::chrono::high_resolution_clock::now();
+
   auto vis = std::make_unique<MyVisitor>(handle);
 
   pgn::StreamParser parser(file_stream);
   auto error = parser.readGames(*vis);
 
   handle = cdbdirect_finalize(handle);
+
+  const auto t1 = std::chrono::high_resolution_clock::now();
+
+  std::cout << "Parsed " << fens.size() << " games in "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0)
+                       .count() /
+                   1000.0
+            << "s\n";
 
   if (error) {
     std::cerr << "Error: " << error.message() << "\n";
@@ -122,8 +132,7 @@ int main(int argc, char const *argv[]) {
   for (auto &fen : fens)
     outfile_stream << fen << std::endl;
 
-  std::cout << "Stored exit ply info for " << fens.size() << " games in "
-            << outfile << "." << std::endl;
+  std::cout << "Stored the exit ply info in " << outfile << "." << std::endl;
 
   return 0;
 }
