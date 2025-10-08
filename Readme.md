@@ -18,7 +18,38 @@ Hence $D$ is an approximation of the games' average exit ply on cdb.
 
 ---
 
-# cdb
+## cdb
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="litrack_blitz_cdb.png?raw=true" width="100%">
+      <div align="right">
+        <sup><i>log plot: <a href="litrack_blitz_cdb_log.png?raw=true">.</a></i></sup>
+      </div>
+    </td>
+    <td align="center">
+      <img src="litrack_rapid_cdb.png?raw=true" width="100%">
+      <div align="right">
+        <sup><i>log plot: <a href="litrack_rapid_cdb_log.png?raw=true">.</a></i></sup>
+      </div>
+    </td>
+    <td align="center">
+      <img src="litrack_classical_cdb.png?raw=true" width="100%">
+      <div align="right">
+        <sup><i>log plot: <a href="litrack_classical_cdb_log.png?raw=true">.</a></i></sup>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center"><img src="litrack_blitz_cdbtime.png?raw=true" width="100%"></td>
+    <td align="center"><img src="litrack_rapid_cdbtime.png?raw=true" width="100%"></td>
+    <td align="center"><img src="litrack_classical_cdbtime.png?raw=true" width="100%"></td>
+  </tr>
+</table>
 
 <table>
   <tr>
