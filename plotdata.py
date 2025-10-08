@@ -138,12 +138,14 @@ class litrackdata:
         prefix = self.prefix.replace("_", r"\_")
         bold = rf"$\bf{{{prefix}}}$"
         fig.suptitle(f"Distribution of cdb exit ply in {bold}.csv.")
+        titleStr = ""
         if negplot:
-            ax[0].set_title(
-                "(A negative ply -d means that a game with d plies ends in cdb.)",
-                fontsize=6,
-                family="monospace",
-            )
+            titleStr += "A ply -d<0 means that a d-ply game ends in cdb. "
+        if used_cutOff:
+            titleStr += f"Values d not in [-{cutOff},{cutOff}] are included in the +/-{cutOff} buckets."
+
+        if titleStr:
+            ax[0].set_title(f"({titleStr.strip()})", fontsize=6, family="monospace")
         fig.tight_layout(rect=[0, 0, 1, 1.03])
 
         plt.savefig(self.prefix + ".png", dpi=300)
