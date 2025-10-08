@@ -2,7 +2,49 @@
 
 Track the coverage of human games from 
 [Lichess open database](https://database.lichess.org) 
-on [chessdb.cn](https://chessdb.cn/queryc_en/) (cdb).
+on [chessdb.cn](https://chessdb.cn/queryc_en/) (cdb). 
+
+In particular, for a monthly random sample of rated Lichess games at various
+time controls, the repo finds the **exit ply** on cdb. Plots of its
+distribution, both for cdb and for an intermittently updated static dump,
+can be found below. In addition, the repo reports on the evolution of the
+progress indicator
+```math
+D = N \left(\sum_i \frac{1}{d_i}\right)^{-1},
+```
+where $d_i$ is the exit ply for the sampled $\approx$ 100K games,
+with the convention that $d_i = \infty$ if the game ends in cdb.
+Hence $D$ is an approximation of the games' average exit ply on cdb.
+
+---
+
+# cdb
+
+<p align="center"> <img src="litrack_blitz_cdb.png?raw=true"> </p>
+<p align="center"> <img src="litrack_rapid_cdb.png?raw=true"> </p>
+<p align="center"> <img src="litrack_classical_cdb.png?raw=true"> </p>
+
+---
+
+<p align="center"> <img src="litrack_blitz_cdbtime.png?raw=true"> </p>
+<p align="center"> <img src="litrack_rapid_cdbtime.png?raw=true"> </p>
+<p align="center"> <img src="litrack_classical_cdbtime.png?raw=true"> </p>
+
+---
+
+## Dump
+
+<p align="center"> <img src="litrack_blitz_dump.png?raw=true"> </p>
+<p align="center"> <img src="litrack_rapid_dump.png?raw=true"> </p>
+<p align="center"> <img src="litrack_classical_dump.png?raw=true"> </p>
+
+---
+
+<p align="center"> <img src="litrack_blitz_dumptime.png?raw=true"> </p>
+<p align="center"> <img src="litrack_rapid_dumptime.png?raw=true"> </p>
+<p align="center"> <img src="litrack_classical_dumptime.png?raw=true"> </p>
+
+---
 
 ### Implementation
 
