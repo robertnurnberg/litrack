@@ -52,8 +52,13 @@ for month in $months; do
   pgn_prefix=${lichess_prefix}${month}
   pgnzst=${pgn_prefix}.pgn.zst
   if [[ ! -f $pgnzst ]]; then
-    echo "  Download $pgnzst ..."
-    wget -q https://database.lichess.org/standard/${pgnzst}
+    url="https://database.lichess.org/standard/${pgnzst}"
+    if ! wget -q --spider "$url"; then
+      echo "  $pgnzst not available for download (yet)."
+      continue
+    fi
+    echo "  Downloading $pgnzst ..."
+    wget -q $url
     echo "  Download finished at: " $(date +'%F %T')
   fi
 
