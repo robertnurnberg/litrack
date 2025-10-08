@@ -93,6 +93,20 @@ class litrackdata:
                 dateStr = self.date[Idx]
                 label[elo][Idx] = f"{dateStr}   ({noStr} in {rangeStr})"
 
+                if mi < -cutOff and -cutOff not in dictList[elo][Idx]:
+                    dictList[elo][Idx][-cutOff] = 0
+                if ma > cutOff and cutOff not in dictList[elo][Idx]:
+                    dictList[elo][Idx][cutOff] = 0
+                for key, value in list(dictList[elo][Idx].items()):
+                    if key < -cutOff:
+                        dictList[elo][Idx][-cutOff] += value
+                        del dictList[elo][Idx][key]
+                        used_cutOff = True
+                    elif key > cutOff:
+                        dictList[elo][Idx][cutOff] += value
+                        del dictList[elo][Idx][key]
+                        used_cutOff = True
+                mi, ma = min(dictList[elo][Idx].keys()), max(dictList[elo][Idx].keys())
                 if rangeMin is None:
                     rangeMin, rangeMax = mi, ma
                 else:
@@ -341,7 +355,9 @@ if __name__ == "__main__":
     prefix, _, _ = args.filename.partition(".")
     data = litrackdata(prefix)
     if not args.onlyTime:
-        data.create_distribution_graph(args.cutOff,args.logplot, args.negplot, args.densityplot)
+        data.create_distribution_graph(
+            args.cutOff, args.logplot, args.negplot, args.densityplot
+        )
     data.create_timeseries_graph()
     if args.AvgMinMaxPlot:
         data.create_avgminmax_graph(args.AvgMinMaxPlot)
