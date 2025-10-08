@@ -111,7 +111,7 @@ for month in $months; do
   for db in $dbs; do
     for tc in $tcs; do
       prefix=litrack_${tc}_$db
-      python plotdata.py $prefix.csv --negplot --logplot 
+      python plotdata.py $prefix.csv --negplot --logplot
       mv $prefix.png images/${prefix}_log.png
       python plotdata.py $prefix.csv --negplot --AvgMinMaxPlot ${prefix}_avgminmax.png
       mv $prefix.png $prefix{time}.png images/
