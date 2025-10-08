@@ -118,6 +118,10 @@ for month in $months; do
       git add $prefix.csv images/$prefix.png images/${prefix}_log.png images/${prefix}time.png
     done
   done
+
+  # finally feed all the new positions from the high quality games to cdb
+  python ../cdblib/bulkqueue2cdb.py ${pgn_prefix}_classical_Elo2200_cdb.epd -s -u rob >&bulkcdb.log &
+
 done
 
 git diff --staged --quiet || git commit -m "Update results"
