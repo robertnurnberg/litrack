@@ -20,15 +20,31 @@ Hence $D$ is an approximation of the games' average exit ply on cdb.
 
 # cdb
 
-<p align="center"> <img src="litrack_blitz_cdb.png?raw=true"> </p>
-<p align="center"> <img src="litrack_rapid_cdb.png?raw=true"> </p>
-<p align="center"> <img src="litrack_classical_cdb.png?raw=true"> </p>
+<table>
+  <!-- First Row: Images -->
+  <tr>
+    <td align="center" valign="bottom"><img src="litrack_blitz_cdb.png?raw=true" width="100%"></td>
+    <td align="center" valign="bottom"><img src="litrack_rapid_cdb.png?raw=true" width="100%"></td>
+    <td align="center" valign="bottom"><img src="litrack_classical_cdb.png?raw=true" width="100%"></td>
+  </tr>
+  <!-- Second Row: Links (right-aligned, smaller font) -->
+  <tr>
+    <td align="right"><a href="litrack_blitz_cdb_log.png?raw=true"><sub>*log plot*</sub></a></td>
+    <td align="right"><a href="litrack_rapid_cdb_log.png?raw=true"><sub>*log plot*</sub></a></td>
+    <td align="right"><a href="litrack_classical_cdb_log.png?raw=true"><sub>*log plot*</sub></a></td>
+  </tr>
+</table>
+
+<table>
+  <!-- This table now appears directly below the one above -->
+  <tr>
+    <td align="center"><img src="litrack_blitz_cdbtime.png?raw=true" width="100%"></td>
+    <td align="center"><img src="litrack_rapid_cdbtime.png?raw=true" width="100%"></td>
+    <td align="center"><img src="litrack_classical_cdbtime.png?raw=true" width="100%"></td>
+  </tr>
+</table>
 
 ---
-
-<p align="center"> <img src="litrack_blitz_cdbtime.png?raw=true"> </p>
-<p align="center"> <img src="litrack_rapid_cdbtime.png?raw=true"> </p>
-<p align="center"> <img src="litrack_classical_cdbtime.png?raw=true"> </p>
 
 ---
 
