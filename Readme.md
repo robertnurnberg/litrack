@@ -1,8 +1,8 @@
 # litrack
 
-Track the coverage of human games from 
-[Lichess open database](https://database.lichess.org) 
-on [chessdb.cn](https://chessdb.cn/queryc_en/) (cdb). 
+Track the coverage of human games from
+[Lichess open database](https://database.lichess.org)
+on [chessdb.cn](https://chessdb.cn/queryc_en/) (cdb).
 
 In particular, for a monthly random sample of rated Lichess games at various
 time controls, the repo finds the **exit ply** on cdb. Plots of its
@@ -82,6 +82,12 @@ Hence $D$ is an approximation of the games' average exit ply on cdb.
   </tr>
 </table>
 
+<small>
+Dump benches: 2025-01 - present: 48454315961.
+See <a href="https://huggingface.co/datasets/robertnurnberg/chessdbcn">
+Hugging Face</a>.
+</small>
+
 ---
 
 ### Implementation
@@ -89,21 +95,21 @@ Hence $D$ is an approximation of the games' average exit ply on cdb.
 Via a cron job the script [`do_track.sh`](do_track.sh) regularly does the
 following:
 
-* Checks [Lichess open database](https://database.lichess.org) for a new monthly
+* Check [Lichess open database](https://database.lichess.org) for a new monthly
   release of rated standard chess games.
-* Runs the awk script [`create_tc_Elo_buckets.awk`](create_tc_Elo_buckets.awk)
-  to randomly sample (up to) 100K each for the Elo brackets 2200+, 1800-2200, 
-  1400-1800 at blitz, rapid and classical time controls. The script uses 
-  reservoir sampling and only selects from games that terminate normally and 
+* Run the awk script [`create_tc_Elo_buckets.awk`](create_tc_Elo_buckets.awk)
+  to randomly sample (up to) 100K each for the Elo brackets 2200+, 1800-2200,
+  1400-1800 at blitz, rapid and classical time controls. The script uses
+  reservoir sampling and only selects from games that terminate normally and
   have at least one (half)move.
-* Runs a compiled binary of [`litrack2dump.cpp`](litrack2dump.cpp) to 
-  probe a local cdb dump for the exit plies of the 900K games and stores the
-  FEN of the final position still in the dump, together with the remaining
-  moves of the game, to a file.
-* Runs the python script [`litrack2cdb.py`](litrack2cdb.py) to
-  query cdb for the final known position of the 900K games, starting from
-  the output of the previous step.
-* Runs the python scripts [`litrack.py`](litrack.py) and
+* Run a compiled binary of [`litrack2dump.cpp`](litrack2dump.cpp) to
+  probe a local cdb dump for the exit plies of the $\approx$ 900K games and
+  store the FEN of the final position still in the dump, together with the
+  remaining moves of the game, to a file.
+* Run the python script [`litrack2cdb.py`](litrack2cdb.py) to
+  query cdb for the final known position of the $\aprprox$ 900K games, starting
+  from the output of the previous step.
+* Run the python scripts [`litrack.py`](litrack.py) and
   [`plotdata.py`](plotdata.py) to produce graphical representations of the
   data.
 
