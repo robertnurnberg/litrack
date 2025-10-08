@@ -14,9 +14,14 @@ std::vector<std::string> fens;
 const int tb_limit = 7; // dumps do not contain 7men EGTB positions
 
 bool is_pos_in_cdb(std::uintptr_t handle, const Board &board) {
-  auto result = cdbdirect_get(handle, board.getFen(false));
+  static std::unordered_map<std::string, bool> cache;
+  auto fen = board.getFen(false);
+  auto it = cache.find(fen);
+  if (it != cache.end())
+    return it->second;
+  auto result = cdbdirect_get(handle, fen);
   int ply = result[result.size() - 1].second;
-  return ply > -2;
+  return cache[fen] = ply > -2;
 }
 
 class MyVisitor : public pgn::Visitor {
