@@ -4,9 +4,8 @@
 set -e
 
 lock_file=litrack.lock
-months_begin="2025-01"
-months_end="2025-09"
-# months_end=$(date +%Y-%m)  # get today's month
+months_begin="2025-09"
+months_end=$(date +%Y-%m)  # get today's month
 sample_size=100000
 elo_buckets="2200 1800_2200 1400_1800"
 
@@ -55,12 +54,12 @@ for month in $months; do
   if [[ ! -f $pgnzst ]]; then
     echo "  Download $pgnzst ..."
     wget -q https://database.lichess.org/standard/${pgnzst}
-    echo "  Download finished at: " $(date)
+    echo "  Download finished at: " $(date +'%F %T')
   fi
 
   zstdcat "$pgnzst" | awk -v tcs="$tcs" -v pgn_prefix="$pgn_prefix" -v sample_size="$sample_size" -f create_tc_Elo_buckets.awk
 
-  echo "  $month: TC+Elo bucket filtering finished at: " $(date)
+  echo "  $month: TC+Elo bucket filtering finished at: " $(date +'%F %T')
 
   for tc in $tcs; do
     dump_csv=litrack_${tc}_dump.csv
@@ -82,12 +81,12 @@ for month in $months; do
         # need the output for cdb, so always run
         ./litrack2dump $pgn $dump_output >&dump.log
         bench=$(grep Opened dump.log | awk '{print $4}')
-        echo "  $month: Dump probing for ${tc}_$elo finished at: " $(date)
+        echo "  $month: Dump probing for ${tc}_$elo finished at: " $(date +'%F %T')
         dump_results="${dump_results}","$(python litrack.py $dump_output)"
 
         if [ "$cdb_done" = "no" ]; then
           python litrack2cdb.py $dump_output -s -u rob -o $cdb_output >&cdb.log
-          echo "  $month: Api querying for ${tc}_$elo finished at: " $(date)
+          echo "  $month: Api querying for ${tc}_$elo finished at: " $(date +'%F %T')
           cdb_results="${cdb_results}","$(python litrack.py $cdb_output)"
         fi
       else
