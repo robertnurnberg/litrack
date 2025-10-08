@@ -107,7 +107,7 @@ following:
   store the FEN of the final position still in the dump, together with the
   remaining moves of the game, to a file.
 * Run the python script [`litrack2cdb.py`](litrack2cdb.py) to
-  query cdb for the final known position of the $\aprprox$ 900K games, starting
+  query cdb for the final known position of the $\approx$ 900K games, starting
   from the output of the previous step.
 * Run the python scripts [`litrack.py`](litrack.py) and
   [`plotdata.py`](plotdata.py) to produce graphical representations of the
