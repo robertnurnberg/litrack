@@ -62,13 +62,15 @@ class litrackdata:
                         dictStr = fields[2 + elo].replace(";", ",")
                         self.depths[elo].append(ast.literal_eval(dictStr))
 
-    def create_distribution_graph(self, logplot, negplot, densityplot):
-        color, edgecolor, label = ["red", "blue"], ["yellow", "black"], [None, None]
+    def create_distribution_graph(self, cutOff, logplot, negplot, densityplot):
+        color, edgecolor = ["red", "blue"], ["yellow", "black"]
+        label = [[None, None] for _ in range(self.elo_buckets)]
         fig, ax = plt.subplots(self.elo_buckets, 1, sharex=True)
         perBin = 1
         dictList = [[None, None] for _ in range(self.elo_buckets)]
         # first find common range for all elo buckets
         rangeMin, rangeMax = None, None
+        used_cutOff = False
         for elo in range(self.elo_buckets):
             for Idx in [0, -1]:
                 dictList[elo][Idx] = self.depths[elo][Idx].copy()
@@ -80,6 +82,17 @@ class litrackdata:
                         )
                         del dictList[elo][Idx][key]
                 mi, ma = min(dictList[elo][Idx].keys()), max(dictList[elo][Idx].keys())
+                if negplot and mi < 0 and ma > 0:
+                    negmax = max([k for k in dictList[elo][Idx].keys() if k < 0])
+                    posmin = min([k for k in dictList[elo][Idx].keys() if k > 0])
+                    cup = r"$\cup$"
+                    rangeStr = f"[{mi}, {negmax}]{cup}[{posmin}, {ma}]"
+                else:
+                    rangeStr = f"[{mi}, {ma}]"
+                noStr = shrink_number_string(sum(dictList[elo][Idx].values()))
+                dateStr = self.date[Idx]
+                label[elo][Idx] = f"{dateStr}   ({noStr} in {rangeStr})"
+
                 if rangeMin is None:
                     rangeMin, rangeMax = mi, ma
                 else:
@@ -89,17 +102,6 @@ class litrackdata:
         numBins = max(1, (rangeMax - rangeMin) // perBin)
         for elo in range(self.elo_buckets):
             for Idx in [0, -1]:
-                dateStr = self.date[Idx]
-                mi, ma = min(dictList[elo][Idx].keys()), max(dictList[elo][Idx].keys())
-                if negplot and mi < 0 and ma > 0:
-                    negmax = max([k for k in dictList[elo][Idx].keys() if k < 0])
-                    posmin = min([k for k in dictList[elo][Idx].keys() if k > 0])
-                    cup = r"$\cup$"
-                    rangeStr = f"[{mi}, {negmax}]{cup}[{posmin}, {ma}]"
-                else:
-                    rangeStr = f"[{mi}, {ma}]"
-                noStr = shrink_number_string(sum(dictList[elo][Idx].values()))
-                label[Idx] = f"{dateStr}   ({noStr} in {rangeStr})"
                 ax[elo].hist(
                     dictList[elo][Idx].keys(),
                     weights=dictList[elo][Idx].values(),
@@ -109,7 +111,7 @@ class litrackdata:
                     alpha=0.5,
                     color=color[Idx],
                     edgecolor=edgecolor[Idx],
-                    label=label[Idx],
+                    label=label[elo][Idx],
                 )
             ax[elo].legend(
                 title=self.eloStr[elo],
@@ -305,6 +307,12 @@ if __name__ == "__main__":
         default="litrack.csv",
     )
     parser.add_argument(
+        "--cutOff",
+        help="Cutoff value for the distribution plot.",
+        type=int,
+        default=100,
+    )
+    parser.add_argument(
         "--logplot",
         action="store_true",
         help="Use logplot for the distribution plot.",
@@ -333,7 +341,7 @@ if __name__ == "__main__":
     prefix, _, _ = args.filename.partition(".")
     data = litrackdata(prefix)
     if not args.onlyTime:
-        data.create_distribution_graph(args.logplot, args.negplot, args.densityplot)
+        data.create_distribution_graph(args.cutOff,args.logplot, args.negplot, args.densityplot)
     data.create_timeseries_graph()
     if args.AvgMinMaxPlot:
         data.create_avgminmax_graph(args.AvgMinMaxPlot)
