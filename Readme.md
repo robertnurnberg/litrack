@@ -103,11 +103,11 @@ following:
   reservoir sampling and only selects from games that terminate normally and
   have at least one (half)move.
 * Run a compiled binary of [`litrack2dump.cpp`](litrack2dump.cpp) to
-  probe a local cdb dump for the exit plies of the $\approx$ 900K games and
+  probe a local cdb dump for the exit plies of the (about) 900K games and
   store the FEN of the final position still in the dump, together with the
   remaining moves of the game, to a file.
 * Run the python script [`litrack2cdb.py`](litrack2cdb.py) to
-  query cdb for the final known position of the $\approx$ 900K games, starting
+  query cdb for the final known position of the (about) 900K games, starting
   from the output of the previous step.
 * Run the python scripts [`litrack.py`](litrack.py) and
   [`plotdata.py`](plotdata.py) to produce graphical representations of the
