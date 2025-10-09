@@ -16,7 +16,8 @@ BEGIN {
 
 # This function determines the bucket and performs reservoir sampling.
 function process_game(elo_bracket, bucket_id, n, j, combined_key) {
-  if (game_tc == "" || termination != "Normal" || !has_moves) {
+  if (game_tc == "" || w_title == "BOT" || b_title == "BOT" ||
+      termination != "Normal" || !has_moves) {
     return;
   }
 
@@ -56,6 +57,8 @@ function process_game(elo_bracket, bucket_id, n, j, combined_key) {
   game_buffer = "";
   w_elo = 0;
   b_elo = 0;
+  w_title = "";
+  b_title = "";
   game_tc = "";
   termination = "";
   has_moves = 0;
@@ -72,6 +75,8 @@ function process_game(elo_bracket, bucket_id, n, j, combined_key) {
 
 /\[WhiteElo / { split($0, a, "\""); w_elo=a[2]+0; }
 /\[BlackElo / { split($0, a, "\""); b_elo=a[2]+0; }
+/\[WhiteTitle / { split($0, a, "\""); w_title=a[2]; }
+/\[BlackTitle / { split($0, a, "\""); b_title=a[2]; }
 /\[Termination / { split($0, a, "\""); termination=a[2]; }
 /^1\./ { has_moves = 1; }
 { game_buffer = game_buffer $0 "\n"; }
