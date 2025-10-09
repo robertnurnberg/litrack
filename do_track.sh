@@ -125,7 +125,7 @@ for month in $months; do
 done
 
 git diff --staged --quiet || git commit -m "Update results"
-git push origin master >&push.log
+git push origin main >&push.log
 
 rm -f $lock_file
 
