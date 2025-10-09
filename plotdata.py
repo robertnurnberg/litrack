@@ -62,10 +62,10 @@ class litrackdata:
                         dictStr = fields[2 + elo].replace(";", ",")
                         self.depths[elo].append(ast.literal_eval(dictStr))
 
-    def create_distribution_graph(self, cutOff, logplot, negplot, density):
+    def create_distribution_graph(self, cutOff, logplot, negplot, density, yrange):
         color, edgecolor = ["red", "blue"], ["yellow", "black"]
         label = [[None, None] for _ in range(self.elo_buckets)]
-        fig, ax = plt.subplots(self.elo_buckets, 1, sharex=True)
+        fig, ax = plt.subplots(self.elo_buckets, 1, sharex=True, sharey=True)
         perBin = 1
         dictList = [[None, None] for _ in range(self.elo_buckets)]
         # first find common range for all elo buckets
@@ -147,10 +147,14 @@ class litrackdata:
         if titleStr:
             ax[0].set_title(f"({titleStr.strip()})", fontsize=6, family="monospace")
         fig.tight_layout(rect=[0, 0, 1, 1.03])
+        if yrange is not None:
+            ax[0].set_ylim(yrange)
+        ymin, ymax = ax[0].get_ylim()
+        print(f"Distro shared y-range: {ymin} {ymax}")
 
         plt.savefig(self.prefix + ".png", dpi=300)
 
-    def create_timeseries_graph(self, plotStart=0):
+    def create_timeseries_graph(self, yrange, plotStart=0):
         dateData = [datetime.fromisoformat(d + "-01") for d in self.date[plotStart:]]
         depthsData = [[] for _ in range(self.elo_buckets)]
         minNoP = [10**10] * self.elo_buckets
@@ -223,6 +227,11 @@ class litrackdata:
             family="monospace",
         )
         fig.tight_layout(rect=[0, 0, 1, 1.03])
+        if yrange is not None:
+            ax.set_ylim(yrange)
+        ymin, ymax = ax.get_ylim()
+        print(f"Time y-range: {ymin} {ymax}")
+
         plt.savefig(
             self.prefix + "time" + bool(plotStart) * str(plotStart) + ".png", dpi=300
         )
@@ -345,6 +354,20 @@ if __name__ == "__main__":
         default=0,
     )
     parser.add_argument(
+        "--distroYrange",
+        nargs=2,
+        type=float,
+        default=None,
+        help="Set a fixed y-range for the histograms.",
+    )
+    parser.add_argument(
+        "--timeYrange",
+        nargs=2,
+        type=float,
+        default=None,
+        help="Set a fixed y-range for the time evolution graphs.",
+    )
+    parser.add_argument(
         "--onlyTime",
         action="store_true",
         help="Create only time evolution graphs.",
@@ -359,8 +382,8 @@ if __name__ == "__main__":
     data = litrackdata(prefix)
     if not args.onlyTime:
         data.create_distribution_graph(
-            args.cutOff, args.logplot, args.negplot, args.density
+            args.cutOff, args.logplot, args.negplot, args.density, args.distroYrange
         )
-    data.create_timeseries_graph()
+    data.create_timeseries_graph(args.timeYrange)
     if args.AvgMinMaxPlot:
         data.create_avgminmax_graph(args.AvgMinMaxPlot)
