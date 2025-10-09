@@ -3,9 +3,9 @@ TERARKDBROOT = ../terarkdb
 CDBDIRECT_PATH = ../cdbdirect
 
 CXX = g++
-CXXFLAGS = -Wall -Wextra -fno-omit-frame-pointer -fno-inline -std=c++17 -O3 -g -march=native
+CXXFLAGS = -O3 -g -Wall -march=native -fomit-frame-pointer -flto=auto
 CXXFLAGS += -DCHESSDB_PATH=\"$(CHESSDB_PATH)\"
-LDFLAGS = -L$(TERARKDBROOT)/output/lib -L$(CDBDIRECT_PATH) -flto=auto
+LDFLAGS = -L$(TERARKDBROOT)/output/lib -L$(CDBDIRECT_PATH)
 LIBS = -lcdbdirect -lterarkdb -lterark-zip-r -lboost_fiber -lboost_context -ltcmalloc -pthread -lgcc -lrt -ldl -ltbb -laio -lgomp -lsnappy -llz4 -lz -lbz2 -latomic
 
 SRC_FILE = litrack2dump.cpp
