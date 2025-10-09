@@ -62,7 +62,7 @@ class litrackdata:
                         dictStr = fields[2 + elo].replace(";", ",")
                         self.depths[elo].append(ast.literal_eval(dictStr))
 
-    def create_distribution_graph(self, cutOff, logplot, negplot, densityplot):
+    def create_distribution_graph(self, cutOff, logplot, negplot, density):
         color, edgecolor = ["red", "blue"], ["yellow", "black"]
         label = [[None, None] for _ in range(self.elo_buckets)]
         fig, ax = plt.subplots(self.elo_buckets, 1, sharex=True)
@@ -121,7 +121,7 @@ class litrackdata:
                     weights=dictList[elo][Idx].values(),
                     range=(rangeMin, rangeMax),
                     bins=numBins,
-                    density=densityplot,
+                    density=density,
                     alpha=0.5,
                     color=color[Idx],
                     edgecolor=edgecolor[Idx],
@@ -339,9 +339,10 @@ if __name__ == "__main__":
         help="Plot exit plies with negative depth separately.",
     )
     parser.add_argument(
-        "--densityplot",
-        action="store_true",
-        help="Plot density in histograms.",
+        "--density",
+        help="Plot density in histograms (or not).",
+        type=int,
+        default=0,
     )
     parser.add_argument(
         "--onlyTime",
@@ -358,7 +359,7 @@ if __name__ == "__main__":
     data = litrackdata(prefix)
     if not args.onlyTime:
         data.create_distribution_graph(
-            args.cutOff, args.logplot, args.negplot, args.densityplot
+            args.cutOff, args.logplot, args.negplot, args.density
         )
     data.create_timeseries_graph()
     if args.AvgMinMaxPlot:

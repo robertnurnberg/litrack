@@ -108,16 +108,7 @@ for month in $months; do
     fi
   done
 
-  for db in $dbs; do
-    for tc in $tcs; do
-      prefix=litrack_${tc}_$db
-      python plotdata.py $prefix.csv --negplot --logplot --cutOff 60
-      mv $prefix.png images/${prefix}_log.png
-      python plotdata.py $prefix.csv --negplot --cutOff 60 --AvgMinMaxPlot ${prefix}_avgminmax.png
-      mv $prefix.png ${prefix}time.png images/
-      git add $prefix.csv images/$prefix.png images/${prefix}_log.png images/${prefix}time.png
-    done
-  done
+  ./do_plot.sh
 
   # finally feed all the new positions from the high quality games to cdb
   python ../cdblib/bulkqueue2cdb.py ${pgn_prefix}_classical_Elo2200_cdb.epd -s -u rob >&bulkcdb.log &
