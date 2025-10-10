@@ -3,8 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from datetime import datetime
 from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, HPacker, VPacker
-from matplotlib.ticker import MaxNLocator
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import AutoMinorLocator
 
 depthIndicatorStr = ""
 
@@ -146,11 +145,13 @@ class litrackdata:
 
         if titleStr:
             ax[0].set_title(f"({titleStr.strip()})", fontsize=6, family="monospace")
-        fig.tight_layout(rect=[0, 0, 1, 1.03])
         if yrange is not None:
             ax[0].set_ylim(yrange)
         ymin, ymax = ax[0].get_ylim()
         print(f"Distro shared y-range: {ymin} {ymax}")
+        ax[0].xaxis.set_minor_locator(AutoMinorLocator())
+
+        fig.tight_layout(rect=[0, 0, 1, 1.03])
 
         plt.savefig(self.prefix + ".png", dpi=300)
 
