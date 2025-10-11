@@ -86,10 +86,9 @@ Hence $D$ is an approximation of the games' average exit ply on cdb.
 </table>
 
 <sup>
-Dump benches:
-2024-11 - 2025-05: 46456113101,
-2025-06 - present: 48454315961.
-See <a href="https://huggingface.co/datasets/robertnurnberg/chessdbcn">
+The progress indicator plots identify the dump used for each data point via
+the total number of positions in the dump, see
+<a href="https://huggingface.co/datasets/robertnurnberg/chessdbcn">
 Hugging Face</a>.
 </sup>
 

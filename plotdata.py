@@ -46,6 +46,7 @@ class litrackdata:
         self.elo_buckets = 3
         self.depths = [[] for _ in range(self.elo_buckets)]  # depth distributions
         self.eloStr = [""] * self.elo_buckets
+        self.benches = None
         with open(prefix + ".csv") as f:
             for line in f:
                 line = line.strip()
@@ -53,10 +54,13 @@ class litrackdata:
                     fields = line.split(",")
                     for elo in range(self.elo_buckets):
                         self.eloStr[elo] = fields[2 + elo]
+                    if "Bench" in line:
+                        self.benches = []
                 elif line:
                     fields = line.split(",")
-                    month = fields[0]
-                    self.date.append(month)
+                    self.date.append(fields[0])
+                    if self.benches is not None:
+                        self.benches.append(int(fields[1]))
                     for elo in range(self.elo_buckets):
                         dictStr = fields[2 + elo].replace(";", ",")
                         self.depths[elo].append(ast.literal_eval(dictStr))
@@ -157,14 +161,13 @@ class litrackdata:
 
     def create_timeseries_graph(self, yrange, plotStart=0):
         dateData = [datetime.fromisoformat(d + "-01") for d in self.date[plotStart:]]
+        benchData = None if self.benches is None else self.benches[plotStart:]
         depthsData = [[] for _ in range(self.elo_buckets)]
         minNoP = [10**10] * self.elo_buckets
         maxNoP = [0] * self.elo_buckets
 
         fig, ax = plt.subplots()
         dateColor = "black"
-        # eloColor = ['royalblue', 'darkorange', 'forestgreen']
-        # eloColor = ['mediumaquamarine', 'coral', 'cornflowerblue']
         eloColor = ["crimson", "mediumblue", "limegreen"]
         if len(dateData) >= 200:
             depthDotSize, depthLineWidth, depthAlpha = 2, 0.7, 0.75
@@ -227,12 +230,31 @@ class litrackdata:
             fontsize=6,
             family="monospace",
         )
-        fig.tight_layout(rect=[0, 0, 1, 1.03])
         if yrange is not None:
             ax.set_ylim(yrange)
         ymin, ymax = ax.get_ylim()
         print(f"Time y-range: {ymin} {ymax}")
 
+        if benchData is not None:
+            for i in range(len(benchData)):
+                if i == 0 or benchData[i] != benchData[i - 1]:
+                    ax.axvline(
+                        x=dateData[i],
+                        color="lightgray",
+                        linestyle="--",
+                        linewidth=1,
+                        alpha=0.7,
+                    )
+                    ax.text(
+                        x=dateData[i],
+                        y=0.999 * ymax,
+                        s=f" {benchData[i]}",
+                        verticalalignment="top",
+                        fontsize=4,
+                        color="gray",
+                    )
+
+        fig.tight_layout(rect=[0, 0, 1, 1.03])
         plt.savefig(
             self.prefix + "time" + bool(plotStart) * str(plotStart) + ".png", dpi=300
         )
