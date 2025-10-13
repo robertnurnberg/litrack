@@ -15,7 +15,7 @@ const int tb_limit = 7; // dumps do not contain 7men EGTB positions
 
 bool is_pos_in_cdb(std::uintptr_t handle, const Board &board) {
   auto result = cdbdirect_get(handle, board.getFen(false));
-  int ply = result[result.size() - 1].second;
+  int ply = result.back().second;
   return ply > -2;
 }
 
