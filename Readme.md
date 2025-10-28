@@ -1,6 +1,6 @@
 # litrack
 
-Track the coverage of human games from
+Track the coverage of human games from the
 [Lichess open database](https://database.lichess.org)
 on [chessdb.cn](https://chessdb.cn/queryc_en/) (cdb).
 
