@@ -99,7 +99,7 @@ Hugging Face</a>.
 Via a cron job the script [`do_track.sh`](do_track.sh) regularly does the
 following:
 
-* Check [Lichess open database](https://database.lichess.org) for a new monthly
+* Check the [Lichess open database](https://database.lichess.org) for a new monthly
   release of rated standard chess games.
 * Run the awk script [`create_tc_Elo_buckets.awk`](create_tc_Elo_buckets.awk)
   to randomly sample (up to) 100K each for the Elo brackets 2200+, 1800-2200,
