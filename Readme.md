@@ -10,7 +10,7 @@ distribution, both for cdb and for an intermittently updated static dump,
 can be found below. In addition, the repo reports on the evolution of the
 progress indicator
 ```math
-D = N \left(\sum_i \frac{1}{d_i}\right)^{-1},
+D = N \left(\sum_{i=1}^N \frac{1}{d_i}\right)^{-1},
 ```
 where $d_i$ is the exit ply for the sampled $\approx$ 100K games,
 with the convention that $d_i = \infty$ if the game ends in cdb.
