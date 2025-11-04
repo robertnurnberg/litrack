@@ -76,8 +76,8 @@ for month in $months; do
   for tc in $tcs; do
     dump_csv=litrack_${tc}_dump.csv
     cdb_csv=litrack_${tc}_cdb.csv
-    grep -q "$month" "$dump_csv" && dump_done="yes" || dump_done="no"
-    grep -q "$month" "$cdb_csv" && cdb_done="yes" || cdb_done="no"
+    grep -q "^$month," "$dump_csv" && dump_done="yes" || dump_done="no"
+    grep -q "^$month," "$cdb_csv" && cdb_done="yes" || cdb_done="no"
     if [ "$dump_done" = "yes" ] && [ "$cdb_done" = "yes" ]; then
       continue
     fi
