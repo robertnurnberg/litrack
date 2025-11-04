@@ -52,6 +52,10 @@ for month in $months; do
   pgn_prefix=${lichess_prefix}${month}
   pgnzst=${pgn_prefix}.pgn.zst
   if [[ ! -f $pgnzst ]]; then
+    if ! curl -s https://database.lichess.org | grep -q "$pgnzst"; then
+      echo "  $pgnzst not listed on database.lichess.org (yet)."
+      continue
+    fi
     url="https://database.lichess.org/standard/${pgnzst}"
     if ! wget -q --spider "$url"; then
       echo "  $pgnzst not available for download (yet)."
