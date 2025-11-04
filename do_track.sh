@@ -49,7 +49,7 @@ months=$(
 )
 
 for month in $months; do
-  if [ $(grep -l "$month" litrack_*.csv | wc -l) == 6 ]; then
+  if [ $(grep -l "^$month," litrack_*.csv | wc -l) == 6 ]; then
     continue
   fi
   pgn_prefix=${lichess_prefix}${month}
