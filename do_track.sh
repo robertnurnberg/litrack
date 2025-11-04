@@ -3,6 +3,9 @@
 # exit on errors
 set -e
 
+# litrack2dump (via cdbdirect) needs to be able to open many files
+ulimit -n 102400
+
 months_begin="2025-09"
 months_end=$(date +%Y-%m) # get today's month
 sample_size=100000
