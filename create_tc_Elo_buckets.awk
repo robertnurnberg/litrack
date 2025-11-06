@@ -66,7 +66,7 @@ function process_game(elo_bracket, bucket_id, n, j, combined_key) {
   lc_line = tolower($0);
   for (i in target_tcs) {
     tc = target_tcs[i];
-    if (index(lc_line, tc)) {
+    if (index(lc_line, tc " ")) {
       game_tc = tc;
       break;
     }
