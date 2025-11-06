@@ -97,7 +97,7 @@ for month in $months; do
         dump_results="${dump_results}","$(python litrack.py $dump_output)"
 
         if [ "$cdb_done" = "no" ]; then
-          python litrack2cdb.py $dump_output -s -u rob -o $cdb_output >&cdb.log
+          python litrack2cdb.py $dump_output -s -c 32 -u rob -o $cdb_output >&cdb.log
           echo "  $month: Api querying for ${tc}_$elo finished at: " $(date +'%F %T')
           cdb_results="${cdb_results}","$(python litrack.py $cdb_output)"
         fi
