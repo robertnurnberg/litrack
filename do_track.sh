@@ -8,6 +8,8 @@ ulimit -n 102400
 
 months_begin="2025-10"
 months_end=$(date +%Y-%m) # get today's month
+months_begin="2019-01"
+months_end="2019-02"
 sample_size=100000
 elo_buckets="2200 1800_2200 1400_1800"
 lock_file=litrack.lock
@@ -69,14 +71,26 @@ for month in $months; do
     echo "  Download finished at: " $(date +'%F %T')
   fi
 
-  zstdcat "$pgnzst" | tee \
-    >(awk -v tcs="$tcs" -v pgn_prefix="$pgn_prefix" -v sample_size="$sample_size" -f create_tc_Elo_buckets.awk) \
-    >(awk -v tcs="$tcs" -f filter_clean_Elo1400.awk | zstd -q -o "${pgn_prefix}_Elo1400.pgn.zst") \
-    >/dev/null
+  trimmedzst=${pgn_prefix}_Elo1400.pgn.zst
+  if [[ ! -f $trimmedzst ]]; then
+    zstdcat "$pgnzst" | tee \
+      >(awk -v tcs="$tcs" -v pgn_prefix="$pgn_prefix" -v sample_size="$sample_size" -f create_tc_Elo_buckets.awk) \
+      >(awk -v tcs="$tcs" -f filter_clean_Elo1400.awk | zstd -q -o "$trimmedzst") \
+      >/dev/null
 
-  wait # for the two awk background jobs to complete
+    wait # for the two awk background jobs to complete
+    echo "  $month: TC+Elo bucket filtering finished at: " $(date +'%F %T')
+  fi
 
-  echo "  $month: TC+Elo bucket filtering finished at: " $(date +'%F %T')
+  ./do_unknown.sh $month $trimmedzst &
+  unknown_pid=$!
+
+  wait $unknown_pid || {
+    echo "Error: do_unknown.sh failed for $month"
+    exit 1
+  }
+
+  exit 1
 
   for tc in $tcs; do
     dump_csv=litrack_${tc}_dump.csv
@@ -121,6 +135,11 @@ for month in $months; do
       sync $cdb_csv
     fi
   done
+
+  wait $unknown_pid || {
+    echo "Error: do_unknown.sh failed for $month"
+    exit 1
+  }
 
   ./do_plot.sh
 
