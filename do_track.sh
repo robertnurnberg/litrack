@@ -71,11 +71,11 @@ for month in $months; do
     echo "  Download finished at: " $(date +'%F %T')
   fi
 
-  trimmedzst=${pgn_prefix}_Elo1400.pgn.zst
+  trimmedzst=${pgn_prefix}_Elo2000.pgn.zst
   if [[ ! -f $trimmedzst ]]; then
     zstdcat "$pgnzst" | tee \
       >(awk -v tcs="$tcs" -v pgn_prefix="$pgn_prefix" -v sample_size="$sample_size" -f create_tc_Elo_buckets.awk) \
-      >(awk -v tcs="$tcs" -f filter_clean_Elo1400.awk | zstd -q -o "$trimmedzst") \
+      >(awk -v tcs="$tcs" -f filter_clean_Elo2000.awk | zstd -q -o "$trimmedzst") \
       >/dev/null
 
     wait # for the two awk background jobs to complete

@@ -1,6 +1,6 @@
 #!/usr/bin/awk -f
 
-# Filters human games where both players have Elo >= 1400, output to stdout.
+# Filters human games where both players have Elo >= 2000, output to stdout.
 #
 # Required variables passed via -v:
 #   - tcs: Space-separated string of time controls (e.g., "blitz rapid").
@@ -10,7 +10,7 @@ BEGIN {
 }
 
 function process_game() {
-  if (game_tc != "" && w_elo >= 1400 && b_elo >= 1400 &&
+  if (game_tc != "" && w_elo >= 2000 && b_elo >= 2000 &&
       w_title != "BOT" && b_title != "BOT" && termination == "Normal" &&
       has_moves) {
     printf "%s", game_buffer;
