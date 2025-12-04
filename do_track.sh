@@ -78,7 +78,7 @@ for month in $months; do
     cdb_csv=litrack_${tc}_cdb.csv
     grep -q "^$month," "$dump_csv" && dump_done="yes" || dump_done="no"
     grep -q "^$month," "$cdb_csv" && cdb_done="yes" || cdb_done="no"
-    if [ "$dump_done" = "yes" ] && [ "$cdb_done" = "yes" ]; then
+    if [[ "$dump_done" == "yes" ]] && [[ "$cdb_done" == "yes" ]]; then
       continue
     fi
     bench="N/A"
@@ -96,7 +96,7 @@ for month in $months; do
         echo "  $month: Dump probing for ${tc}_$elo finished at: " $(date +'%F %T')
         dump_results="${dump_results}","$(python litrack.py $dump_output)"
 
-        if [ "$cdb_done" = "no" ]; then
+        if [[ "$cdb_done" == "no" ]]; then
           python litrack2cdb.py $dump_output -s -c 32 -u rob -o $cdb_output >&cdb.log
           echo "  $month: Api querying for ${tc}_$elo finished at: " $(date +'%F %T')
           cdb_results="${cdb_results}","$(python litrack.py $cdb_output)"
@@ -107,11 +107,11 @@ for month in $months; do
       fi
     done
     timestamp=$(date +%Y-%m-%d)
-    if [ "$dump_done" = "no" ]; then
+    if [[ "$dump_done" == "no" ]]; then
       echo $month,$bench$dump_results >>$dump_csv
       sync $dump_csv
     fi
-    if [ "$cdb_done" = "no" ]; then
+    if [[ "$cdb_done" == "no" ]]; then
       echo $month,$timestamp$cdb_results >>$cdb_csv
       sync $cdb_csv
     fi
