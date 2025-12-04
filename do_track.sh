@@ -109,9 +109,11 @@ for month in $months; do
     timestamp=$(date +%Y-%m-%d)
     if [ "$dump_done" = "no" ]; then
       echo $month,$bench$dump_results >>$dump_csv
+      sync $dump_csv
     fi
     if [ "$cdb_done" = "no" ]; then
       echo $month,$timestamp$cdb_results >>$cdb_csv
+      sync $cdb_csv
     fi
   done
 
