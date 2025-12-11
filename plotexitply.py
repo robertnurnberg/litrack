@@ -167,7 +167,6 @@ class litrackdata:
         maxNoP = [0] * self.elo_buckets
 
         fig, ax = plt.subplots()
-        dateColor = "black"
         eloColor = ["crimson", "mediumblue", "limegreen"]
         if len(dateData) >= 200:
             depthDotSize, depthLineWidth, depthAlpha = 2, 0.7, 0.75
@@ -212,7 +211,7 @@ class litrackdata:
         ax.grid(alpha=0.4, linewidth=0.5)
         prefix = self.prefix.replace("_", r"\_")
         bold = rf"$\bf{{{prefix}}}$"
-        fig.suptitle(f"     Progress indicators from {bold}.csv.")
+        fig.suptitle(f"     Exit ply indicators from {bold}.csv.")
         plt.figtext(0.02, 0.92, depthIndicatorStr, fontsize=9)
         pair = r"$d_i$"
         infty = r"$d_i=\infty$"
@@ -345,7 +344,7 @@ class litrackdata:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Plot data stored in e.g. litrack.csv.",
+        description="Plot data stored in e.g. litrack_classical_cdb.csv.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(

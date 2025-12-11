@@ -10,6 +10,7 @@ months_begin="2025-10"
 months_end=$(date +%Y-%m) # get today's month
 sample_size=100000
 elo_buckets="2200 1800_2200 1400_1800"
+coverageElo=2200
 lock_file=litrack.lock
 
 if [[ -f $lock_file ]]; then
@@ -48,8 +49,13 @@ months=$(
   done
 )
 
+if [ $(ls *.csv | wc -l) != 9 ]; then
+  echo "Encountered unexpected number of .csv files."
+  exit 1
+fi
+
 for month in $months; do
-  if [ $(grep -l "^$month," litrack_*.csv | wc -l) == 6 ]; then
+  if [ $(grep -l "^$month," litrack_*.csv | wc -l) == 9 ]; then
     continue
   fi
   pgn_prefix=${lichess_prefix}${month}
@@ -69,9 +75,19 @@ for month in $months; do
     echo "  Download finished at: " $(date +'%F %T')
   fi
 
-  zstdcat "$pgnzst" | awk -v tcs="$tcs" -v pgn_prefix="$pgn_prefix" -v sample_size="$sample_size" -f create_tc_Elo_buckets.awk
+  trimmedzst=${pgn_prefix}_Elo${coverageElo}.pgn.zst
+  if [[ ! -f $trimmedzst ]]; then
+    zstdcat "$pgnzst" | tee \
+      >(awk -v tcs="$tcs" -v pgn_prefix="$pgn_prefix" -v sample_size="$sample_size" -f create_tc_Elo_buckets.awk) \
+      >(awk -v tcs="$tcs" -v elo="$coverageElo" -f filter_clean_Elo.awk | zstd -q -o "$trimmedzst") \
+      >/dev/null
 
-  echo "  $month: TC+Elo bucket filtering finished at: " $(date +'%F %T')
+    wait # for the two awk background jobs to complete
+    echo "  $month: TC+Elo bucket filtering finished at: " $(date +'%F %T')
+  fi
+
+  ./do_coverage.sh $month $coverageElo &
+  do_coverage_pid=$!
 
   for tc in $tcs; do
     dump_csv=litrack_${tc}_dump.csv
@@ -117,10 +133,15 @@ for month in $months; do
     fi
   done
 
+  wait $do_coverage_pid || {
+    echo "Error: do_coverage.sh failed for $month"
+    exit 1
+  }
+
   ./do_plot.sh
 
   # finally feed all the new positions from the high quality games to cdb
-  python ../cdblib/bulkqueue2cdb.py ${pgn_prefix}_classical_Elo2200_cdb.epd -s -u rob >&bulkcdb.log &
+  python ../cdblib/bulkqueue2cdb.py coverage_upload.epd ${pgn_prefix}_classical_Elo2200_cdb.epd -s -u rob >&bulkcdb.log &
 
 done
 
