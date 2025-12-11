@@ -12,7 +12,7 @@ For an intermittently updated static dump of cdb we track both the percentage
 of unique unknown positions within the first 10, 20 and 30 moves, as well as
 the percentage of known "visits", that is, each position that is encountered in
 the games is weighted by the number of times it was seen.
-Here the start position is ignored, as well as positions that cannot appear in
+Here the starting position is ignored, as well as positions that cannot appear in
 cdb, i.e. positions with fewer than eight pieces and positions without a legal
 move.
 
@@ -173,7 +173,8 @@ following:
 ## TL;DR
 
 * Choosing a random position from the first 20/40/60 plies of a random Elo
-  2200+ game on Lichess (at blitz, rapid or classical TC), gives a
-  97%/61%/44% chance that it is already known to cdb.
+  2200+ game on Lichess (at blitz, rapid or classical TC, and excluding the
+  starting position), gives a 97%/61%/44% chance that it is already known to
+  cdb.
 * An Elo2200+ game on Lichess at classical TC will exit from cdb on average at
   about ply 24.
