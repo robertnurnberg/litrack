@@ -48,22 +48,28 @@ class coveragedata:
         ax.scatter(
             dateData, nodesData, color=nodesColor, s=nodesDotSize, alpha=nodesAlpha
         )
+        mi, ma = min(nodesData), max(nodesData)
+        mi, ma = round(mi * 10) / 10, round(ma * 10) / 10
+        rangeStr = f"[{mi}%, {ma}%]"
         ax.plot(
             dateData,
             nodesData,
             color=nodesColor,
             linewidth=nodesLineWidth,
             alpha=nodesAlpha,
-            label="known visits (%)",
+            label=f"known visits                         (in {rangeStr})",
         )
         ax2.scatter(dateData, posData, color=posColor, s=nodesDotSize, alpha=nodesAlpha)
+        mi, ma = min(posData), max(posData)
+        mi, ma = round(mi * 10) / 10, round(ma * 10) / 10
+        rangeStr = f"[{mi}%, {ma}%]"
         ax2.plot(
             dateData,
             posData,
             color=posColor,
             linewidth=nodesLineWidth,
             alpha=nodesAlpha,
-            label="unique unknown positions (%)",
+            label=f"unique unknown positions   (in {rangeStr})",
         )
         ax.tick_params(axis="y", labelcolor=nodesColor)
         ax2.tick_params(axis="y", labelcolor=posColor)
