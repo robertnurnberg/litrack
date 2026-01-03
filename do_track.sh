@@ -77,12 +77,11 @@ for month in $months; do
 
   trimmedzst=${pgn_prefix}_Elo${coverageElo}.pgn.zst
   if [[ ! -f $trimmedzst ]]; then
-    zstdcat "$pgnzst" | tee \
+    ( zstdcat "$pgnzst" | tee \
       >(awk -v tcs="$tcs" -v pgn_prefix="$pgn_prefix" -v sample_size="$sample_size" -f create_tc_Elo_buckets.awk) \
-      >(awk -v tcs="$tcs" -v elo="$coverageElo" -f filter_clean_Elo.awk | zstd -q -o "$trimmedzst") \
-      >/dev/null
-
-    wait # for the two awk background jobs to complete
+      | awk -v tcs="$tcs" -v elo="$coverageElo" -f filter_clean_Elo.awk | zstd -q -o "$trimmedzst"
+      wait
+    )
     echo "  $month: TC+Elo bucket filtering finished at: " $(date +'%F %T')
   fi
 
