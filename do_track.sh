@@ -137,6 +137,9 @@ for month in $months; do
     exit 1
   }
 
+  # wait a minute before (hack to avoid broken plots)
+  sleep 60
+
   ./do_plot.sh
 
   # finally feed all the new positions from the high quality games to cdb
