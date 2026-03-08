@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# ensure that sort uses the POSIX C locale
+export LC_NUMERIC=C
+
 dbs="dump cdb"
 tcs="blitz rapid classical"
 cutoff=60
