@@ -1,4 +1,4 @@
-CHESSDB_PATH = /media/ssd_t7/chessdb/chess-20251115/data
+CHESSDB_PATH = /media/ssd_t7/chessdb/chess-20260702/data
 TERARKDBROOT = ../terarkdb
 CDBDIRECT_PATH = ../cdbdirect
 
